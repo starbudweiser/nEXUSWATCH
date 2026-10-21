@@ -1,0 +1,181 @@
+// nEXUSWATCH — textes de l'interface (français d'abord, anglais ; ajouter une langue = ajouter une table).
+import Foundation
+
+enum L {
+    static let lang: String = {
+        let code = String((Locale.preferredLanguages.first ?? "fr").prefix(2))
+        return tables[code] != nil ? code : "en"
+    }()
+    static var locale: Locale { Locale(identifier: lang) }
+
+    static func t(_ key: String, _ args: CVarArg...) -> String {
+        let s = tables[lang]?[key] ?? tables["fr"]?[key] ?? key
+        return args.isEmpty ? s : String(format: s, locale: locale, arguments: args)
+    }
+
+    static func ago(_ d: Date) -> String {
+        if abs(d.timeIntervalSinceNow) < 60 { return t("time.now") }
+        let f = RelativeDateTimeFormatter(); f.locale = locale; f.unitsStyle = .short
+        return f.localizedString(for: d, relativeTo: Date())
+    }
+
+    static func date(_ d: Date) -> String {
+        d.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(locale))
+    }
+
+    static func number(_ n: Int) -> String { n.formatted(.number.locale(locale)) }
+
+    private static let tables: [String: [String: String]] = ["fr": fr, "en": en]
+
+    private static let fr: [String: String] = [
+        "app.subtitle": "Surveillance de votre mod Nexus",
+        "action.refresh": "ACTUALISER",
+        "action.open": "Ouvrir la page",
+        "action.readall": "Tout marquer comme lu",
+        "action.settings": "Réglages",
+        "action.reply": "Répondre sur Nexus",
+        "action.openbug": "Ouvrir sur Nexus",
+        "action.copy": "Copier pour correctif",
+        "action.copied": "Copié",
+        "action.cancel": "ANNULER",
+        "action.save": "ENREGISTRER",
+        "status.loading": "Vérification en cours…",
+        "time.now": "à l'instant",
+        "status.checked": "Vérifié %@",
+        "status.never": "Jamais vérifié",
+        "stat.endorsements": "Endorsements",
+        "stat.downloads": "Téléchargements",
+        "stat.unique": "DL uniques",
+        "stat.posts": "Posts",
+        "stat.bugs": "Bugs ouverts",
+        "stat.version": "Version",
+        "stat.delta": "%@ en 24 h",
+        "stat.updated": "maj %@",
+        "tab.posts": "Posts",
+        "tab.bugs": "Bugs",
+        "tab.files": "Fichiers",
+        "badge.new": "Nouveau",
+        "badge.sticky": "Épinglé",
+        "badge.author": "Vous",
+        "posts.replies": "%d réponse(s)",
+        "posts.empty": "Aucun post pour l'instant. Les nouveaux messages apparaîtront ici.",
+        "posts.disabled": "Les posts sont désactivés pour ce mod.",
+        "posts.shown": "%d derniers fils affichés sur %d messages",
+        "bugs.empty": "Aucun bug signalé.",
+        "bugs.disabled": "Les rapports de bugs sont désactivés pour ce mod.",
+        "bugs.filter.all": "Tous",
+        "bugs.filter.open": "Ouverts",
+        "bugs.filter.unread": "Non lus",
+        "bugs.follow": "Suivi local",
+        "bugs.note": "Notes de test (gardées sur ce Mac uniquement)",
+        "bugs.meta": "Version : %@ · Priorité : %@ · %d réponse(s)",
+        "bugs.nomessages": "Le détail de ce bug n'a pas encore été chargé. Actualisez.",
+        "follow.triage": "À trier",
+        "follow.reproduce": "À reproduire",
+        "follow.testing": "En test",
+        "follow.fixed": "Corrigé (local)",
+        "follow.released": "Correctif publié",
+        "files.name": "Fichier",
+        "files.version": "Version",
+        "files.total": "DL",
+        "files.unique": "Uniques",
+        "files.scan": "Contrôle Nexus",
+        "files.empty": "Aucun fichier publié.",
+        "scan.QUARANTINED": "Quarantaine",
+        "scan.ok": "Validé",
+        "quarantine": "%d fichier(s) en quarantaine : le contrôle antivirus de Nexus les bloque, les utilisateurs ne peuvent pas les télécharger.",
+        "select.post": "Sélectionnez un post pour le lire.",
+        "select.bug": "Sélectionnez un bug pour voir le rapport.",
+        "settings.title": "Réglages",
+        "settings.mod": "Page du mod (URL Nexus ou identifiant)",
+        "settings.mod.invalid": "Adresse non reconnue. Collez l'URL de la page du mod, par exemple https://www.nexusmods.com/skyrimspecialedition/mods/196272.",
+        "settings.interval": "Vérification automatique",
+        "settings.minutes": "toutes les %d min",
+        "settings.notify": "Notifier les nouveaux posts, réponses et bugs",
+        "settings.note": "Aucune clé API ni connexion n'est nécessaire : seules les pages publiques du mod sont lues.",
+        "notif.title": "Nouveau sur %@",
+        "notif.posts": "%d post(s) ou réponse(s)",
+        "notif.bugs": "%d bug(s) nouveau(x) ou mis à jour",
+        "err.timeout": "La page du mod ne répond pas (contrôle Cloudflare ou connexion). Réessayez dans un instant.",
+        "err.notfound": "Mod introuvable. Vérifiez l'adresse dans les réglages.",
+        "err.api": "L'API Nexus a refusé la demande :",
+        "err.script": "Lecture de la page impossible :",
+        "copy.header": "Rapport de bug Nexus",
+    ]
+
+    private static let en: [String: String] = [
+        "app.subtitle": "Nexus mod monitor",
+        "action.refresh": "REFRESH",
+        "action.open": "Open page",
+        "action.readall": "Mark all as read",
+        "action.settings": "Settings",
+        "action.reply": "Reply on Nexus",
+        "action.openbug": "Open on Nexus",
+        "action.copy": "Copy for a fix",
+        "action.copied": "Copied",
+        "action.cancel": "CANCEL",
+        "action.save": "SAVE",
+        "status.loading": "Checking…",
+        "time.now": "just now",
+        "status.checked": "Checked %@",
+        "status.never": "Never checked",
+        "stat.endorsements": "Endorsements",
+        "stat.downloads": "Downloads",
+        "stat.unique": "Unique DLs",
+        "stat.posts": "Posts",
+        "stat.bugs": "Open bugs",
+        "stat.version": "Version",
+        "stat.delta": "%@ in 24 h",
+        "stat.updated": "updated %@",
+        "tab.posts": "Posts",
+        "tab.bugs": "Bugs",
+        "tab.files": "Files",
+        "badge.new": "New",
+        "badge.sticky": "Pinned",
+        "badge.author": "You",
+        "posts.replies": "%d reply(ies)",
+        "posts.empty": "No posts yet. New messages will show up here.",
+        "posts.disabled": "Posts are disabled for this mod.",
+        "posts.shown": "Latest %d threads shown out of %d messages",
+        "bugs.empty": "No bug reported.",
+        "bugs.disabled": "Bug reports are disabled for this mod.",
+        "bugs.filter.all": "All",
+        "bugs.filter.open": "Open",
+        "bugs.filter.unread": "Unread",
+        "bugs.follow": "Local tracking",
+        "bugs.note": "Test notes (kept on this Mac only)",
+        "bugs.meta": "Version: %@ · Priority: %@ · %d reply(ies)",
+        "bugs.nomessages": "This bug's details have not been loaded yet. Refresh.",
+        "follow.triage": "To triage",
+        "follow.reproduce": "To reproduce",
+        "follow.testing": "Testing",
+        "follow.fixed": "Fixed (local)",
+        "follow.released": "Fix released",
+        "files.name": "File",
+        "files.version": "Version",
+        "files.total": "DLs",
+        "files.unique": "Unique",
+        "files.scan": "Nexus scan",
+        "files.empty": "No file published.",
+        "scan.QUARANTINED": "Quarantined",
+        "scan.ok": "Approved",
+        "quarantine": "%d file(s) quarantined: Nexus's virus scan blocks them, users cannot download them.",
+        "select.post": "Select a post to read it.",
+        "select.bug": "Select a bug to see the report.",
+        "settings.title": "Settings",
+        "settings.mod": "Mod page (Nexus URL or ID)",
+        "settings.mod.invalid": "Address not recognised. Paste the mod page URL, for example https://www.nexusmods.com/skyrimspecialedition/mods/196272.",
+        "settings.interval": "Automatic check",
+        "settings.minutes": "every %d min",
+        "settings.notify": "Notify new posts, replies and bugs",
+        "settings.note": "No API key or login needed: only the mod's public pages are read.",
+        "notif.title": "New on %@",
+        "notif.posts": "%d post(s) or reply(ies)",
+        "notif.bugs": "%d new or updated bug(s)",
+        "err.timeout": "The mod page is not responding (Cloudflare check or connection). Try again in a moment.",
+        "err.notfound": "Mod not found. Check the address in Settings.",
+        "err.api": "The Nexus API refused the request:",
+        "err.script": "Could not read the page:",
+        "copy.header": "Nexus bug report",
+    ]
+}
