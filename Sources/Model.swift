@@ -12,8 +12,10 @@ struct ModConfig: Codable, Equatable {
     mutating func parse(_ input: String) -> Bool {
         let s = input.trimmingCharacters(in: .whitespacesAndNewlines)
         if let id = Int(s) { modId = id; return true }
-        guard let r = s.range(of: #"nexusmods\.com/([a-z0-9]+)/mods/(\d+)"#, options: .regularExpression) else { return false }
-        let parts = s[r].split(separator: "/")
+        // www., next. ou sans sous-domaine ; ancien format /<jeu>/mods/<id> ou nouveau /games/<jeu>/mods/<id>
+        guard let r = s.range(of: #"nexusmods\.com/(games/)?[a-z0-9]+/mods/\d+"#, options: [.regularExpression, .caseInsensitive])
+        else { return false }
+        let parts = s[r].lowercased().split(separator: "/").filter { $0 != "games" }
         guard parts.count >= 4, let id = Int(parts[3]) else { return false }
         domain = String(parts[1]); modId = id
         return true
