@@ -80,7 +80,7 @@ final class NexusFetcher: NSObject, WKNavigationDelegate {
         var req = URLRequest(url: URL(string: "https://api.nexusmods.com/v2/graphql")!)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue("nEXUSWATCH/1.0", forHTTPHeaderField: "User-Agent")
+        req.setValue("nEXUSWATCH/1.0.0", forHTTPHeaderField: "User-Agent")
         req.httpBody = try JSONSerialization.data(withJSONObject: ["query": query, "variables": variables])
         req.timeoutInterval = 30
         let (data, resp) = try await URLSession.shared.data(for: req)
