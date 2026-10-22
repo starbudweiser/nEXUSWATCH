@@ -271,6 +271,12 @@ enum MCPServer {
          "inputSchema": ["type": "object", "properties": [
             "mod": ["type": "string",
                     "description": "Mod to report on: id such as 'skyrimspecialedition/196272', numeric mod id or part of its name. All mods if omitted."]]]],
+        ["name": "get_fix_prompt",
+         "description": "Ready-to-use brief for the agent that will fix a watched mod: open bugs ranked by priority with the "
+             + "players' messages, the expected method and the final report to write.",
+         "inputSchema": ["type": "object", "properties": [
+            "mod": ["type": "string",
+                    "description": "Mod: id such as 'skyrimspecialedition/196272', numeric mod id or part of its name. All mods if omitted."]]]],
         ["name": "get_bug_reports",
          "description": "Bug reports of a watched mod to audit, with every message, the other posts for spotting duplicates, "
              + "and the bug audit instructions (environment, reproduction, missing information, likely causes, severity, reply).",
@@ -315,12 +321,13 @@ enum MCPServer {
                 "- \(m.id) — \(m.displayName): \(m.unreadPosts) unread posts, \(m.unreadBugs) unread bugs, "
                     + "last check \(m.lastCheck.map(L.date) ?? "never")"
             }.joined(separator: "\n"), false)
-        case "get_mod_report", "get_bug_reports":
+        case "get_mod_report", "get_bug_reports", "get_fix_prompt":
             let wanted = (args["mod"] as? String ?? "").trimmingCharacters(in: .whitespaces).lowercased()
             let picked = wanted.isEmpty ? mods : mods.filter {
                 $0.id == wanted || String($0.config.modId) == wanted || $0.displayName.lowercased().contains(wanted)
             }
             if picked.isEmpty { return ("No watched mod matches '\(wanted)'. Call list_mods to see them.", true) }
+            if name == "get_fix_prompt" { return (picked.map { LocalAudit.agentPrompt($0) }.joined(separator: "\n\n---\n\n"), false) }
             if name == "get_mod_report" {
                 return (AIDigest.instructions + "\n\n---\n\n" + picked.map(AIDigest.markdown).joined(separator: "\n\n---\n\n"), false)
             }

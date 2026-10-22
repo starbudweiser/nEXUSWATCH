@@ -835,12 +835,19 @@ struct AIView: View {
             }
             switch ai.method {
             case .mcp, .export:
-                ScrollView { MarkdownView(text: LocalAudit.markdown(mod)).padding(Socle.M.space4) }
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Socle.M.space3) {
+                        AgentPromptBox(mod: mod)
+                        MarkdownView(text: LocalAudit.markdown(mod))
+                    }
+                    .padding(Socle.M.space4)
+                }
             case .openai, .anthropic:
                 if let r = mod.aiReport {
                     ScrollView {
                         VStack(alignment: .leading, spacing: Socle.M.space3) {
                             Text(L.t("ai.generated", L.date(r.date), r.model)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                            AgentPromptBox(mod: mod)
                             MarkdownView(text: r.text)
                         }
                         .padding(Socle.M.space4)
@@ -849,6 +856,7 @@ struct AIView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: Socle.M.space3) {
                             Text(L.t("ai.empty")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                            AgentPromptBox(mod: mod)
                             MarkdownView(text: LocalAudit.markdown(mod))
                         }
                         .padding(Socle.M.space4)
@@ -863,6 +871,39 @@ struct AIView: View {
         panel.nameFieldStringValue = "\(name).md"
         panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
         if panel.runModal() == .OK, let url = panel.url { try? text.write(to: url, atomically: true, encoding: .utf8) }
+    }
+}
+
+/// Prompt de correction prêt à copier, replié par défaut au-dessus du rapport.
+struct AgentPromptBox: View {
+    let mod: ModState
+    @State private var open = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Socle.M.space2) {
+            HStack(spacing: Socle.M.space2) {
+                Button { open.toggle() } label: {
+                    HStack(spacing: Socle.M.space1_5) {
+                        Image(systemName: open ? "chevron.down" : "chevron.right").foregroundStyle(Socle.C.textSubtle)
+                        Text(L.t("agent.title")).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                Spacer()
+                CopyButton(title: L.t("agent.copy")) { LocalAudit.agentPrompt(mod) }
+            }
+            Text(L.t("agent.hint")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+            if open {
+                Text(LocalAudit.agentPrompt(mod)).socle(Socle.T.mono).foregroundStyle(Socle.C.text)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(Socle.M.space2)
+                    .background(Socle.C.bgInset, in: RoundedRectangle(cornerRadius: Socle.M.radius))
+            }
+        }
+        .padding(Socle.M.space3)
+        .overlay(RoundedRectangle(cornerRadius: Socle.M.radius).stroke(Socle.C.border, lineWidth: 1))
     }
 }
 

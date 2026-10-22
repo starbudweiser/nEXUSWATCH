@@ -111,6 +111,41 @@ enum LocalAudit {
         return s
     }
 
+    /// Prompt à donner à l'agent qui corrigera le mod : bugs par priorité avec les messages des joueurs,
+    /// méthode de travail et compte rendu attendu.
+    static func agentPrompt(_ m: ModState, maxItems: Int = 15) -> String {
+        let (items, solved) = plan(m)
+        let tags = m.postTags ?? [:]
+        let untracked = m.posts.filter { tags[$0.id]?.isBug == true && tags[$0.id]?.trackedAs == nil }
+        let version = m.stats.map { versionNumber($0.version) } ?? "—"
+
+        var s = L.t("agent.intro", m.displayName, m.config.pageURL.absoluteString, version) + "\n\n"
+        s += "## \(L.t("report.plan"))\n\n"
+        if items.isEmpty { s += "\(L.t("report.none"))\n\n" }
+        for (i, it) in items.prefix(maxItems).enumerated() {
+            s += "### \(i + 1). \(it.bug.title) — \(L.t("report.prio.\(it.priority.key)"))\n\n"
+            s += "- \(L.t("report.item.signals", it.reports, L.ago(it.bug.lastPost), versionNumber(it.bug.version)))\n"
+            s += "- \(L.t("report.action")) \(L.t("report.action.\(it.action)"))\n"
+            for msg in it.bug.messages.prefix(4) where !msg.text.isEmpty {
+                s += "> **\(msg.author)** : \(excerpt(msg.text, 600))\n"
+            }
+            s += "\n"
+        }
+        if items.count > maxItems { s += "\(L.t("report.more", items.count - maxItems))\n\n" }
+        if !solved.isEmpty {
+            s += "## \(L.t("report.close"))\n\n\(L.t("agent.solved"))\n\n"
+            for b in solved { s += "- \(b.title)\n" }
+            s += "\n"
+        }
+        if !untracked.isEmpty {
+            s += "## \(L.t("report.untracked"))\n\n\(L.t("agent.untracked"))\n\n"
+            for p in untracked { s += "- **\(p.author)** : \(excerpt(p.text, 300))\n" }
+            s += "\n"
+        }
+        s += "## \(L.t("agent.method"))\n\n\(L.t("agent.rules"))\n\n\(L.t("report.note.lang"))\n"
+        return s
+    }
+
     /// « True Directional Movement - Version 2.3.1 » → « 2.3.1 ».
     private static func versionNumber(_ v: String) -> String {
         guard let r = v.range(of: #"\d+(\.\d+)*[a-z]?\s*$"#, options: .regularExpression) else { return v.isEmpty ? "—" : v }
@@ -164,6 +199,7 @@ struct ReportWindow: View {
                 Text(mod?.displayName ?? "").socle(Socle.T.label).foregroundStyle(Socle.C.textMuted).lineLimit(1)
                 Spacer()
                 CopyButton(title: L.t("ai.copyreport")) { text }
+                if let mod { CopyButton(title: L.t("agent.copy")) { LocalAudit.agentPrompt(mod) } }
                 Button(L.t("report.print")) { print() }
                     .buttonStyle(SocleButtonStyle(.primary, height: Socle.M.sizeControl)).fixedSize()
             }
