@@ -259,7 +259,7 @@ enum MCPServer {
         }
         """
     }
-    static var claudeCommand: String { "claude mcp add nexuswatch -- \"\(executable)\" --mcp" }
+    static var claudeCommand: String { "claude mcp add -s user nexuswatch -- \"\(executable)\" --mcp" }
 
     private static let tools: [[String: Any]] = [
         ["name": "list_mods",
