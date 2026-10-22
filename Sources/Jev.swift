@@ -14,8 +14,27 @@ struct PostTag: Codable, Equatable {
     var isFeature: Bool { (feature ?? 0) >= Jev.keep }
 }
 
+/// Consommation Jev comptée par l'appli, remise à zéro chaque mois (l'API ne donne pas le solde de crédits).
+struct JevUsage: Codable, Equatable {
+    var month = JevUsage.currentMonth
+    var requests = 0, inputTokens = 0, outputTokens = 0
+
+    static var currentMonth: String {
+        let c = Calendar(identifier: .gregorian).dateComponents([.year, .month], from: Date())
+        return String(format: "%04d-%02d", c.year ?? 0, c.month ?? 0)
+    }
+    /// Valeur du mois en cours (zéro si le compteur date d'un mois précédent).
+    var thisMonth: JevUsage { month == Self.currentMonth ? self : JevUsage() }
+
+    mutating func add(input: Int, output: Int) {
+        self = thisMonth
+        requests += 1; inputTokens += input; outputTokens += output
+    }
+}
+
 enum Jev {
     static let keep = 0.7
+    static let console = URL(string: "https://console.typesafe.ai/")!
     private static let url = URL(string: "https://api.typesafe.ai/v1/systemone")!
     private static let model = "jev-latest"
     private static let batch = 10, excerpt = 1500, recentBugs = 25, maxPairs = 400
@@ -40,7 +59,7 @@ enum Jev {
     }
 
     /// Classe les posts d'un mod ; `nil` si Jev n'a rien pu dire (clé absente, panne).
-    static func tags(for m: ModState, apiKey: String, cache: inout [String: Double]) async -> [String: PostTag]? {
+    static func tags(for m: ModState, apiKey: String, cache: inout [String: Double], usage: inout JevUsage) async -> [String: PostTag]? {
         let posts = m.posts.filter { !m.isOwn($0.author) }
         guard !posts.isEmpty else { return [:] }
         func text(_ p: Post) -> String {
@@ -55,7 +74,7 @@ enum Jev {
             asked.append(Question(id: hash("feature", text(p)), criteria: featureCriteria, items: item(p),
                                   instructions: "Is the message `reports.p\(p.id)` a feature request for the mod?"))
         }
-        guard var scores = await ask(asked, apiKey: apiKey, cache: &cache) else { return nil }
+        guard var scores = await ask(asked, apiKey: apiKey, cache: &cache, usage: &usage) else { return nil }
 
         var tags: [String: PostTag] = [:]
         for p in posts {
@@ -83,7 +102,7 @@ enum Jev {
                                 instructions: "Do the post `reports.p\(pair.post.id)` and the tracker bug `reports.b\(pair.bug.id)` "
                                     + "describe the same problem?")
             }
-            if let same = await ask(questions, apiKey: apiKey, cache: &cache) { scores.merge(same) { a, _ in a } }
+            if let same = await ask(questions, apiKey: apiKey, cache: &cache, usage: &usage) { scores.merge(same) { a, _ in a } }
             for p in bugPosts {
                 let best = pairs.filter { $0.post.id == p.id }.compactMap { pair in scores[pair.id].map { (pair.bug, $0) } }
                     .max { $0.1 < $1.1 }
@@ -94,7 +113,8 @@ enum Jev {
     }
 
     /// Pose les questions absentes du cache, par lots ; `nil` si l'API n'a répondu à aucun lot.
-    static func ask(_ questions: [Question], apiKey: String, cache: inout [String: Double]) async -> [String: Double]? {
+    static func ask(_ questions: [Question], apiKey: String, cache: inout [String: Double],
+                    usage: inout JevUsage) async -> [String: Double]? {
         var found: [String: Double] = [:]
         for q in questions { if let v = cache[q.id] { found[q.id] = v } }
         let todo = questions.filter { cache[$0.id] == nil }
@@ -107,8 +127,9 @@ enum Jev {
             for (i, q) in chunk.enumerated() {
                 qs["q\(i)"] = ["type": "noul", "criteria": q.criteria, "instructions": q.instructions]
             }
-            guard let answers = try? await post(["model": model, "state": ["reports": items], "questions": qs], apiKey: apiKey)
+            guard let (answers, tokens) = try? await post(["model": model, "state": ["reports": items], "questions": qs], apiKey: apiKey)
             else { failed = true; break }
+            usage.add(input: tokens.input, output: tokens.output)
             for (i, q) in chunk.enumerated() {
                 if let v = (answers["q\(i)"] as? [String: Any])?["noul"] as? Double { found[q.id] = v; cache[q.id] = v }
             }
@@ -117,7 +138,7 @@ enum Jev {
     }
 
     /// POST avec reprise espacée sur 429/529 (limite de débit, surcharge).
-    private static func post(_ body: [String: Any], apiKey: String) async throws -> [String: Any] {
+    private static func post(_ body: [String: Any], apiKey: String) async throws -> ([String: Any], (input: Int, output: Int)) {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.timeoutInterval = 60
@@ -133,7 +154,8 @@ enum Jev {
             }
             guard code == 200, let json = try JSONSerialization.jsonObject(with: d) as? [String: Any],
                   let answers = json["answers"] as? [String: Any] else { throw URLError(.badServerResponse) }
-            return answers
+            let u = json["usage"] as? [String: Any]
+            return (answers, ((u?["input_tokens"] as? Int) ?? 0, (u?["output_tokens"] as? Int) ?? 0))
         }
         throw URLError(.badServerResponse)
     }

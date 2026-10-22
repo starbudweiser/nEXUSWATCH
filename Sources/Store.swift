@@ -175,10 +175,11 @@ final class Store: ObservableObject {
 
     private func classify(_ id: String) async {
         guard let mod = data.mods.first(where: { $0.id == id }) else { return }
-        var cache = data.jevCache ?? [:]
-        let tags = await Jev.tags(for: mod, apiKey: Keychain.get("typesafe"), cache: &cache)
+        var cache = data.jevCache ?? [:], usage = data.jevUsage ?? JevUsage()
+        let tags = await Jev.tags(for: mod, apiKey: Keychain.get("typesafe"), cache: &cache, usage: &usage)
         if cache.count > 20_000 { cache = [:] }
         data.jevCache = cache
+        data.jevUsage = usage
         if let tags { update(id) { $0.postTags = tags } }
     }
 

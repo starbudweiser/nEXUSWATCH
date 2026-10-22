@@ -112,6 +112,7 @@ struct AppData: Codable {
     var ai: AISettings?
     /// Réponses de Jev déjà obtenues (empreinte de la question → probabilité « oui »).
     var jevCache: [String: Double]?
+    var jevUsage: JevUsage?
 }
 
 /// Ancien format (un seul mod, réglages dans la config) : lu une fois pour migrer.

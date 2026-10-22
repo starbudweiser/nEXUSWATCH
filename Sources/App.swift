@@ -1054,7 +1054,18 @@ struct SettingsView: View {
             Toggle(L.t("jev.enable"), isOn: $ai.jev).socle(Socle.T.body)
             Text(L.t("jev.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
                 .fixedSize(horizontal: false, vertical: true)
-            if ai.jev { field(L.t("jev.key")) { SecureField("", text: $typesafeKey) } }
+            if ai.jev {
+                field(L.t("jev.key")) {
+                    HStack(spacing: Socle.M.space2) {
+                        SecureField("", text: $typesafeKey)
+                        Link(destination: Jev.console) { Text(L.t("jev.balance")) }
+                            .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
+                    }
+                }
+                let u = (store.data.jevUsage ?? JevUsage()).thisMonth
+                Text(L.t("jev.usage", u.requests, L.number(u.inputTokens + u.outputTokens), L.number(u.inputTokens), L.number(u.outputTokens)))
+                    .socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).monospacedDigit()
+            }
         }
     }
 
