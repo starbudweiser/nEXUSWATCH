@@ -752,8 +752,7 @@ struct AIView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Socle.M.space3) {
                         Text(L.t("ai.preview.\(ai.method.rawValue)")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
-                        Text(Self.markdown(AIDigest.markdown(mod))).socle(Socle.T.reading).foregroundStyle(Socle.C.text)
-                            .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                        MarkdownView(text: AIDigest.markdown(mod))
                     }
                     .padding(Socle.M.space4)
                 }
@@ -762,8 +761,7 @@ struct AIView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: Socle.M.space3) {
                             Text(L.t("ai.generated", L.date(r.date), r.model)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
-                            Text(Self.markdown(r.text)).socle(Socle.T.reading).foregroundStyle(Socle.C.text)
-                                .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                            MarkdownView(text: r.text)
                         }
                         .padding(Socle.M.space4)
                     }
@@ -774,16 +772,94 @@ struct AIView: View {
         }
     }
 
-    static func markdown(_ text: String) -> AttributedString {
-        (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
-            ?? AttributedString(text)
-    }
-
     private func save(_ text: String, name: String) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "\(name).md"
         panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
         if panel.runModal() == .OK, let url = panel.url { try? text.write(to: url, atomically: true, encoding: .utf8) }
+    }
+}
+
+/// Affichage Markdown par blocs (titres, listes, citations, code) ; SwiftUI n'interprète que le Markdown en ligne.
+struct MarkdownView: View {
+    let text: String
+
+    private enum Block {
+        case heading(Int, String), bullet(String, String), quote([String]), code([String]), paragraph(String), space
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Socle.M.space1_5) {
+            ForEach(Array(Self.blocks(text).enumerated()), id: \.offset) { _, block in view(block) }
+        }
+        .textSelection(.enabled)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder private func view(_ block: Block) -> some View {
+        switch block {
+        case let .heading(level, t):
+            Text(Self.inline(t))
+                .socle(level == 1 ? Socle.T.display : level == 2 ? Socle.T.heading : level == 3 ? Socle.T.title : Socle.T.labelStrong)
+                .foregroundStyle(Socle.C.textStrong)
+                .padding(.top, level <= 2 ? Socle.M.space3 : Socle.M.space1)
+        case let .bullet(mark, t):
+            HStack(alignment: .firstTextBaseline, spacing: Socle.M.space1_5) {
+                Text(mark).socle(Socle.T.reading).foregroundStyle(Socle.C.textSubtle).monospacedDigit()
+                Text(Self.inline(t)).socle(Socle.T.reading).foregroundStyle(Socle.C.text)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.leading, Socle.M.space2)
+        case let .quote(lines):
+            Text(Self.inline(lines.joined(separator: "\n"))).socle(Socle.T.reading).foregroundStyle(Socle.C.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.leading, Socle.M.space3)
+                .overlay(alignment: .leading) { Rectangle().fill(Socle.C.border).frame(width: 2) }
+        case let .code(lines):
+            Text(lines.joined(separator: "\n")).socle(Socle.T.mono).foregroundStyle(Socle.C.text)
+                .padding(Socle.M.space2).frame(maxWidth: .infinity, alignment: .leading)
+                .background(Socle.C.bgInset, in: RoundedRectangle(cornerRadius: Socle.M.radius))
+        case let .paragraph(t):
+            Text(Self.inline(t)).socle(Socle.T.reading).foregroundStyle(Socle.C.text)
+                .fixedSize(horizontal: false, vertical: true)
+        case .space:
+            Color.clear.frame(height: Socle.M.space1)
+        }
+    }
+
+    static func inline(_ t: String) -> AttributedString {
+        (try? AttributedString(markdown: t, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(t)
+    }
+
+    private static func blocks(_ text: String) -> [Block] {
+        var out: [Block] = [], quote: [String] = [], code: [String]? = nil
+        func flushQuote() { if !quote.isEmpty { out.append(.quote(quote)); quote = [] } }
+        for raw in text.components(separatedBy: "\n") {
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            if line.hasPrefix("```") {
+                if let c = code { out.append(.code(c)); code = nil } else { flushQuote(); code = [] }
+                continue
+            }
+            if code != nil { code!.append(raw); continue }
+            if line.hasPrefix(">") { quote.append(String(line.dropFirst()).trimmingCharacters(in: .whitespaces)); continue }
+            flushQuote()
+            if line.isEmpty {
+                if case .space? = out.last {} else if !out.isEmpty { out.append(.space) }
+            } else if let r = line.range(of: #"^#{1,6} "#, options: .regularExpression) {
+                out.append(.heading(line.distance(from: r.lowerBound, to: r.upperBound) - 1, String(line[r.upperBound...])))
+            } else if line.hasPrefix("- ") || line.hasPrefix("* ") {
+                out.append(.bullet("•", String(line.dropFirst(2))))
+            } else if let r = line.range(of: #"^\d+[.)] "#, options: .regularExpression) {
+                out.append(.bullet(line[r].trimmingCharacters(in: .whitespaces), String(line[r.upperBound...])))
+            } else if line.range(of: #"^(-{3,}|\*{3,})$"#, options: .regularExpression) != nil {
+                out.append(.space)
+            } else {
+                out.append(.paragraph(line))
+            }
+        }
+        flushQuote()
+        if let c = code { out.append(.code(c)) }
+        return out
     }
 }
 
