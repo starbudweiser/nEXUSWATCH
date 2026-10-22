@@ -130,7 +130,8 @@ struct ModSidebar: View {
                             store.select(m.id)
                         } content: {
                             HStack(spacing: Socle.M.space1_5) {
-                                Text(m.displayName).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(2)
+                                Text(m.displayName).socle(Socle.T.labelStrong).lineLimit(2)
+                                    .foregroundStyle(m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
                                 Spacer(minLength: 0)
                                 if store.refreshing == m.id { ProgressView().controlSize(.mini) }
                                 else if m.unreadPosts + m.unreadBugs > 0 { CountBadge(n: m.unreadPosts + m.unreadBugs) }
