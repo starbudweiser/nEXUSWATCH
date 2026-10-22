@@ -22,7 +22,7 @@ struct NexusWatchApp: App {
                 .frame(minWidth: 1180, minHeight: 640)
                 .task { await store.refreshAll() }
         }
-        .defaultSize(width: 1400, height: 780)
+        .defaultSize(width: 1327, height: 800)
         .commands {
             CommandGroup(after: .newItem) {
                 Button(L.t("action.refresh").capitalized) { Task { await store.refreshCurrent() } }
