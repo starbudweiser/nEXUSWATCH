@@ -817,6 +817,11 @@ struct AIView: View {
                     Button(L.t("ai.save")) { save(AIDigest.prompt(mod), name: mod.displayName) }
                         .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
                 }
+                Button(L.t("report.paper")) {
+                    store.report = ReportRequest(modId: mod.id, ai: ai.method.usesAPI && mod.aiReport != nil)
+                    ReportWindow.show(store)
+                }
+                .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
                 if ai.method.usesAPI {
                     Button(L.t("ai.analyze")) { Task { await store.analyze(mod.id) } }
                         .buttonStyle(SocleButtonStyle(.primary, height: Socle.M.sizeControl)).fixedSize()
@@ -830,13 +835,7 @@ struct AIView: View {
             }
             switch ai.method {
             case .mcp, .export:
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Socle.M.space3) {
-                        Text(L.t("ai.preview.\(ai.method.rawValue)")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
-                        MarkdownView(text: AIDigest.markdown(mod))
-                    }
-                    .padding(Socle.M.space4)
-                }
+                ScrollView { MarkdownView(text: LocalAudit.markdown(mod)).padding(Socle.M.space4) }
             case .openai, .anthropic:
                 if let r = mod.aiReport {
                     ScrollView {
@@ -847,7 +846,13 @@ struct AIView: View {
                         .padding(Socle.M.space4)
                     }
                 } else {
-                    EmptyState(text: L.t("ai.empty"))
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: Socle.M.space3) {
+                            Text(L.t("ai.empty")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                            MarkdownView(text: LocalAudit.markdown(mod))
+                        }
+                        .padding(Socle.M.space4)
+                    }
                 }
             }
         }

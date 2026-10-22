@@ -11,6 +11,8 @@ final class Store: ObservableObject {
     /// Identifiant du mod en cours d'analyse par l'agent IA.
     @Published var analyzing: String?
     @Published var aiErrors: [String: String] = [:]
+    /// Rapport affiché dans la fenêtre de lecture A4.
+    @Published var report: ReportRequest?
     let fetcher = NexusFetcher()
     private var timer: Timer?
     private var queue: [String] = []
@@ -19,6 +21,7 @@ final class Store: ObservableObject {
         schedule()
         if data.notifications { requestNotifications() }
         updateBadge()
+        DispatchQueue.main.async { [weak self] in self?.hasTypesafeKey = !Keychain.get("typesafe").isEmpty }
     }
 
     // MARK: Mods suivis
@@ -166,8 +169,9 @@ final class Store: ObservableObject {
 
     // MARK: Tri Jev
 
-    /// Lue une fois dans le trousseau, puis tenue à jour par les réglages.
-    private var hasTypesafeKey = !Keychain.get("typesafe").isEmpty
+    /// Lue dans le trousseau après l'ouverture de la fenêtre (une demande d'accès du trousseau bloquerait le lancement),
+    /// puis tenue à jour par les réglages.
+    @Published private var hasTypesafeKey = false
     var jevActive: Bool { ai.enabled && ai.jev && hasTypesafeKey }
     func tag(_ p: Post) -> PostTag? { jevActive ? state.postTags?[p.id] : nil }
     /// Bugs signalés dans les posts mais absents du tracker.
