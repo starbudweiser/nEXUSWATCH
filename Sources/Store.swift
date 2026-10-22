@@ -149,12 +149,35 @@ final class Store: ObservableObject {
         guard let after = data.mods.first(where: { $0.id == id }) else { return }
         let added = after.unreadKeys.subtracting(before)
         if !firstLoad, !added.isEmpty, data.notifications { notify(added, mod: after) }
-        if !firstLoad, ai.enabled, ai.auto, ai.method.usesAPI, added.contains(where: { $0.hasPrefix("p:") || $0.hasPrefix("r:") }) {
+        // Un nouveau bug, un bug relancé ou un nouveau post relance l'audit.
+        if !firstLoad, ai.enabled, ai.auto, ai.method.usesAPI, !added.isEmpty {
             Task { await analyze(id, notifyWhenDone: true) }
         }
     }
 
     // MARK: Agent IA
+
+    func bugAudit(_ b: Bug) -> AIReport? { state.bugAudits?[b.id] }
+    func auditKey(_ b: Bug) -> String { "\(state.id)#\(b.id)" }
+
+    /// Audit approfondi d'un seul bug, gardé avec le mod.
+    func audit(_ b: Bug) async {
+        let id = state.id, key = auditKey(b), settings = ai
+        guard analyzing == nil, let mod = data.mods.first(where: { $0.id == id }) else { return }
+        analyzing = key; aiErrors[key] = nil
+        defer { analyzing = nil }
+        do {
+            let text = try await AIClient.analyze(AIDigest.bugData(b, in: mod), settings: settings, instructions: AIDigest.bugInstructions)
+            update(id) { m in
+                var audits = m.bugAudits ?? [:]
+                audits[b.id] = AIReport(text: text, date: Date(), model: settings.model)
+                m.bugAudits = audits
+            }
+            save()
+        } catch {
+            aiErrors[key] = error.localizedDescription
+        }
+    }
 
     /// Envoie les données du mod à l'API choisie et garde le rapport obtenu.
     func analyze(_ id: String, notifyWhenDone: Bool = false) async {
@@ -216,8 +239,8 @@ final class Store: ObservableObject {
     func note(_ b: Bug) -> String { state.notes[b.id] ?? "" }
     func setNote(_ n: String, for b: Bug) { state.notes[b.id] = n.isEmpty ? nil : n; save() }
 
-    static let closedStatuses = ["fixed", "not a bug", "won't fix", "duplicate", "corrigé"]
-    static func isClosed(_ b: Bug) -> Bool { closedStatuses.contains { b.status.lowercased().contains($0) } }
+    nonisolated static let closedStatuses = ["fixed", "not a bug", "won't fix", "duplicate", "corrigé"]
+    nonisolated static func isClosed(_ b: Bug) -> Bool { closedStatuses.contains { b.status.lowercased().contains($0) } }
 
     /// Rapport prêt à coller (ticket, note ou demande de correctif).
     func report(_ b: Bug) -> String {

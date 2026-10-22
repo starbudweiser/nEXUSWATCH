@@ -640,6 +640,7 @@ struct BugDetail: View {
                     }
                     .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
                 }
+                if store.ai.enabled { BugAuditBox(bug: bug) }
                 if bug.messages.isEmpty {
                     Text(L.t("bugs.nomessages")).socle(Socle.T.body).foregroundStyle(Socle.C.textSubtle)
                 }
@@ -659,6 +660,47 @@ struct BugDetail: View {
             .padding(Socle.M.space4)
         }
         .onAppear { note = store.note(bug) }
+    }
+}
+
+/// Audit IA d'un bug : lancé ici avec une API, ou copié pour l'agent avec l'export et le MCP.
+struct BugAuditBox: View {
+    @EnvironmentObject var store: Store
+    let bug: Bug
+
+    var body: some View {
+        let ai = store.ai, audit = store.bugAudit(bug), key = store.auditKey(bug)
+        VStack(alignment: .leading, spacing: Socle.M.space2) {
+            HStack(spacing: Socle.M.space2) {
+                Image(systemName: "sparkles").foregroundStyle(Socle.C.warning)
+                Text(L.t("ai.bug.title")).socle(Socle.T.title).foregroundStyle(Socle.C.textStrong)
+                if let audit { Text(L.t("ai.generated", L.date(audit.date), audit.model)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle) }
+                Spacer()
+                if store.analyzing == key {
+                    ProgressView().controlSize(.small)
+                    Text(L.t("ai.analyzing")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                }
+                if let audit, ai.method.usesAPI { CopyButton(title: L.t("ai.copyreport")) { audit.text } }
+                CopyButton(title: L.t("ai.bug.copy")) {
+                    AIDigest.bugInstructions + "\n\n---\n\n" + AIDigest.bugData(bug, in: store.state)
+                }
+                if ai.method.usesAPI {
+                    Button(L.t(audit == nil ? "ai.bug.run" : "ai.bug.rerun")) { Task { await store.audit(bug) } }
+                        .buttonStyle(SocleButtonStyle(.primary, height: Socle.M.sizeControl)).fixedSize()
+                        .disabled(store.analyzing != nil)
+                }
+            }
+            if let e = store.aiErrors[key] { Callout(kind: .warning, text: e) }
+            if let audit, ai.method.usesAPI {
+                MarkdownView(text: audit.text)
+            } else {
+                Text(L.t(ai.method.usesAPI ? "ai.bug.empty" : "ai.bug.empty.\(ai.method.rawValue)"))
+                    .socle(Socle.T.body).foregroundStyle(Socle.C.textMuted).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(Socle.M.space3)
+        .background(Socle.C.surface, in: RoundedRectangle(cornerRadius: Socle.M.radius))
+        .overlay(RoundedRectangle(cornerRadius: Socle.M.radius).stroke(Socle.C.warningBorder, lineWidth: 1))
     }
 }
 

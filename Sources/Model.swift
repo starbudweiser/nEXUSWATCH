@@ -90,6 +90,8 @@ struct ModState: Codable, Identifiable {
     var history: [Snapshot] = []
     var lastCheck: Date?
     var aiReport: AIReport?
+    /// Audits IA par bug (identifiant du bug → rapport).
+    var bugAudits: [String: AIReport]?
 }
 
 /// Dernier rapport produit par l'agent IA pour un mod.

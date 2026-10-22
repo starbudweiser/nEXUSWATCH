@@ -74,10 +74,38 @@ enum AIDigest {
     /// Consigne et données réunies, à coller dans n'importe quel agent.
     static func prompt(_ m: ModState) -> String { instructions + "\n\n---\n\n" + markdown(m) }
 
+    /// Consigne d'audit approfondi d'un seul rapport de bug.
+    static var bugInstructions: String {
+        """
+        You audit one bug report of a Nexus Mods mod for its author, who must decide how to fix it. \
+        Write in \(language), in Markdown, with these sections:
+        1. Summary: the problem in two sentences.
+        2. Environment: game version, mod version, mod manager, OS and hardware, other mods, as reported. Say what is missing.
+        3. Reproduction: the steps as reported, then your best reconstruction, and whether it looks reproducible.
+        4. Missing information: precise questions to ask the reporter (logs, crash files, load order, settings…).
+        5. Likely causes: ranked hypotheses, each with what to check in the mod to confirm or rule it out.
+        6. Duplicates and related reports among the other bugs and posts given.
+        7. Severity (critical, major, minor) and next action.
+        8. Suggested reply to the reporter, ready to post, in the reporter's language.
+        Messages marked [author] were written by the mod author. Stay factual and never invent details.
+        """
+    }
+
+    /// Un bug à auditer, suivi des autres rapports et des posts pour repérer les doublons.
+    static func bugData(_ b: Bug, in m: ModState) -> String {
+        var s = "# \(m.displayName)\n\n\(m.config.pageURL.absoluteString)?tab=bugs\n\n## Bug to audit\n"
+        s += bugSection(b, m)
+        let others = m.bugs.filter { $0.id != b.id }
+        if !others.isEmpty {
+            s += "\n## Other bug reports\n\n"
+            s += others.map { "- \($0.title) — \($0.status) · \($0.replies) replies · last post \(L.date($0.lastPost))" }.joined(separator: "\n") + "\n"
+        }
+        s += postsSection(m)
+        if let v = m.stats?.version { s += "\nCurrent mod version: \(v)\n" }
+        return s
+    }
+
     static func markdown(_ m: ModState) -> String {
-        func who(_ name: String) -> String { m.isOwn(name) ? "\(name) [author]" : name }
-        func quote(_ t: String) -> String { "> " + t.replacingOccurrences(of: "\n", with: "\n> ") }
-        func answered(_ msgs: [Message]) -> String { msgs.contains { m.isOwn($0.author) } ? "yes" : "no" }
         func delta(_ k: KeyPath<Snapshot, Int>) -> String { m.delta(k).map { " (\($0 >= 0 ? "+" : "")\($0) in 24 h)" } ?? "" }
 
         var s = "# \(m.displayName)\n\n\(m.config.pageURL.absoluteString)\n"
@@ -85,19 +113,8 @@ enum AIDigest {
 
         s += "\n## Bug tracker (\(m.bugs.count) reports)\n"
         if !m.bugsEnabled { s += "\nThe bug tracker is disabled on this mod.\n" }
-        for b in m.bugs {
-            s += "\n### \(b.title)\n\nStatus: \(b.status) · Priority: \(b.priority) · Version: \(b.version) · "
-            s += "Replies: \(b.replies) · Last post: \(L.date(b.lastPost)) · Answered by author: \(answered(b.messages))\n"
-            if b.messages.isEmpty { s += "\n(Messages not loaded yet.)\n" }
-            for msg in b.messages { s += "\n\(who(msg.author)) — \(L.date(msg.date)):\n\n\(quote(msg.text))\n" }
-        }
-
-        s += "\n## Posts (\(m.posts.count) shown of \(m.postCount))\n"
-        if !m.postsEnabled { s += "\nPosts are disabled on this mod.\n" }
-        for p in m.posts {
-            s += "\n### \(who(p.author)) — \(L.date(p.date))\(p.sticky ? " — sticky" : "") · Answered by author: \(answered(p.replies))\n\n\(quote(p.text))\n"
-            for r in p.replies { s += "\nReply from \(who(r.author)) — \(L.date(r.date)):\n\n\(quote(r.text))\n" }
-        }
+        for b in m.bugs { s += bugSection(b, m) }
+        s += postsSection(m)
 
         if let st = m.stats {
             s += "\n## Stats (context)\n\n"
@@ -106,6 +123,28 @@ enum AIDigest {
             s += " · Unique downloads: \(st.uniqueDownloads)\(delta(\.unique))\n"
             let quarantined = st.files.filter { $0.scan == "QUARANTINED" }
             if !quarantined.isEmpty { s += "- Files quarantined by the Nexus virus scan: \(quarantined.map(\.name).joined(separator: ", "))\n" }
+        }
+        return s
+    }
+
+    private static func who(_ name: String, _ m: ModState) -> String { m.isOwn(name) ? "\(name) [author]" : name }
+    private static func quote(_ t: String) -> String { "> " + t.replacingOccurrences(of: "\n", with: "\n> ") }
+    private static func answered(_ msgs: [Message], _ m: ModState) -> String { msgs.contains { m.isOwn($0.author) } ? "yes" : "no" }
+
+    private static func bugSection(_ b: Bug, _ m: ModState) -> String {
+        var s = "\n### \(b.title)\n\nStatus: \(b.status) · Priority: \(b.priority) · Version: \(b.version) · "
+        s += "Replies: \(b.replies) · Last post: \(L.date(b.lastPost)) · Answered by author: \(answered(b.messages, m))\n"
+        if b.messages.isEmpty { s += "\n(Messages not loaded yet.)\n" }
+        for msg in b.messages { s += "\n\(who(msg.author, m)) — \(L.date(msg.date)):\n\n\(quote(msg.text))\n" }
+        return s
+    }
+
+    private static func postsSection(_ m: ModState) -> String {
+        var s = "\n## Posts (\(m.posts.count) shown of \(m.postCount))\n"
+        if !m.postsEnabled { s += "\nPosts are disabled on this mod.\n" }
+        for p in m.posts {
+            s += "\n### \(who(p.author, m)) — \(L.date(p.date))\(p.sticky ? " — sticky" : "") · Answered by author: \(answered(p.replies, m))\n\n\(quote(p.text))\n"
+            for r in p.replies { s += "\nReply from \(who(r.author, m)) — \(L.date(r.date)):\n\n\(quote(r.text))\n" }
         }
         return s
     }
@@ -119,7 +158,7 @@ enum AIClient {
         var errorDescription: String? { message }
     }
 
-    static func analyze(_ data: String, settings: AISettings) async throws -> String {
+    static func analyze(_ data: String, settings: AISettings, instructions: String = AIDigest.instructions) async throws -> String {
         var req: URLRequest
         let body: [String: Any]
         let model = settings.model.trimmingCharacters(in: .whitespaces)
@@ -132,7 +171,7 @@ enum AIClient {
             req = URLRequest(url: URL(string: "https://api.anthropic.com/v1/messages")!)
             req.setValue(key, forHTTPHeaderField: "x-api-key")
             req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-            body = ["model": model, "max_tokens": 8000, "system": AIDigest.instructions,
+            body = ["model": model, "max_tokens": 8000, "system": instructions,
                     "messages": [["role": "user", "content": data]]]
         default:
             let base = settings.openAIURL.trimmingCharacters(in: .whitespaces)
@@ -141,7 +180,7 @@ enum AIClient {
             req = URLRequest(url: url.appendingPathComponent("chat/completions"))
             let key = Keychain.get("openai")
             if !key.isEmpty { req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
-            body = ["model": model, "messages": [["role": "system", "content": AIDigest.instructions],
+            body = ["model": model, "messages": [["role": "system", "content": instructions],
                                                  ["role": "user", "content": data]]]
         }
         req.httpMethod = "POST"
@@ -189,6 +228,14 @@ enum MCPServer {
          "inputSchema": ["type": "object", "properties": [
             "mod": ["type": "string",
                     "description": "Mod to report on: id such as 'skyrimspecialedition/196272', numeric mod id or part of its name. All mods if omitted."]]]],
+        ["name": "get_bug_reports",
+         "description": "Bug reports of a watched mod to audit, with every message, the other posts for spotting duplicates, "
+             + "and the bug audit instructions (environment, reproduction, missing information, likely causes, severity, reply).",
+         "inputSchema": ["type": "object", "properties": [
+            "mod": ["type": "string",
+                    "description": "Mod: id such as 'skyrimspecialedition/196272', numeric mod id or part of its name. All mods if omitted."],
+            "bug": ["type": "string", "description": "Part of a bug title. All open bugs if omitted."],
+            "include_closed": ["type": "boolean", "description": "Also include fixed or closed bugs when no bug is named."]]]],
     ]
 
     static func run() {
@@ -224,13 +271,23 @@ enum MCPServer {
                 "- \(m.id) — \(m.displayName): \(m.unreadPosts) unread posts, \(m.unreadBugs) unread bugs, "
                     + "last check \(m.lastCheck.map(L.date) ?? "never")"
             }.joined(separator: "\n"), false)
-        case "get_mod_report":
+        case "get_mod_report", "get_bug_reports":
             let wanted = (args["mod"] as? String ?? "").trimmingCharacters(in: .whitespaces).lowercased()
             let picked = wanted.isEmpty ? mods : mods.filter {
                 $0.id == wanted || String($0.config.modId) == wanted || $0.displayName.lowercased().contains(wanted)
             }
             if picked.isEmpty { return ("No watched mod matches '\(wanted)'. Call list_mods to see them.", true) }
-            return (AIDigest.instructions + "\n\n---\n\n" + picked.map(AIDigest.markdown).joined(separator: "\n\n---\n\n"), false)
+            if name == "get_mod_report" {
+                return (AIDigest.instructions + "\n\n---\n\n" + picked.map(AIDigest.markdown).joined(separator: "\n\n---\n\n"), false)
+            }
+            let title = (args["bug"] as? String ?? "").trimmingCharacters(in: .whitespaces).lowercased()
+            let closed = args["include_closed"] as? Bool ?? false
+            let parts = picked.flatMap { m in
+                m.bugs.filter { b in title.isEmpty ? closed || !Store.isClosed(b) : b.title.lowercased().contains(title) }
+                    .map { AIDigest.bugData($0, in: m) }
+            }
+            if parts.isEmpty { return (title.isEmpty ? "No open bug report on these mods." : "No bug title matches '\(title)'.", false) }
+            return (AIDigest.bugInstructions + "\nAudit each bug below separately.\n\n---\n\n" + parts.joined(separator: "\n\n---\n\n"), false)
         default:
             return ("Unknown tool: \(name)", true)
         }
