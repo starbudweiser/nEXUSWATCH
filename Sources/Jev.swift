@@ -18,7 +18,7 @@ enum Jev {
     static let keep = 0.7
     private static let url = URL(string: "https://api.typesafe.ai/v1/systemone")!
     private static let model = "jev-latest"
-    private static let batch = 10, excerpt = 1500, maxPairs = 120
+    private static let batch = 10, excerpt = 1500, recentBugs = 25, maxPairs = 400
 
     private static let bugCriteria = [
         "true": "The message reports something in the mod that does not work as expected: crash, error, broken or missing "
@@ -62,11 +62,13 @@ enum Jev {
             tags[p.id] = PostTag(bug: scores[hash("bug", text(p))], feature: scores[hash("feature", text(p))])
         }
 
-        // Bugs signalés dans les posts : sont-ils déjà dans le tracker ?
-        let bugPosts = posts.filter { tags[$0.id]?.isBug == true }
+        // Bugs signalés dans les posts : sont-ils déjà dans le tracker ? Comparés aux bugs ouverts les plus récents,
+        // là où se trouvent les doublons ; les plus récents des posts passent d'abord.
+        let bugPosts = posts.filter { tags[$0.id]?.isBug == true }.sorted { $0.lastActivity > $1.lastActivity }
+        let candidates = m.bugs.filter { !Store.isClosed($0) }.sorted { $0.lastPost > $1.lastPost }.prefix(recentBugs)
         var pairs: [(post: Post, bug: Bug, id: String)] = []
         for p in bugPosts {
-            for b in m.bugs {
+            for b in candidates {
                 let report = b.title + "\n" + (b.messages.first?.text ?? "")
                 pairs.append((p, b, hash("same", text(p), String(report.prefix(excerpt)))))
             }
