@@ -1,6 +1,7 @@
 // nEXUSWATCH — audit des bugs établi par l'appli, sans IA : plan de développement par priorité,
 // dans la langue de l'interface, et fenêtre de lecture au format A4 (impression et PDF).
 import AppKit
+import PDFKit
 import SwiftUI
 
 enum LocalAudit {
@@ -134,6 +135,7 @@ struct ReportRequest: Codable, Hashable {
 struct PaperPage: View {
     let text: String
     static let width: CGFloat = 595
+    static let a4 = CGSize(width: 595, height: 842)
 
     var body: some View {
         MarkdownView(text: text)
@@ -195,17 +197,52 @@ struct ReportWindow: View {
         window?.makeKeyAndOrderFront(nil)
     }
 
-    /// Impression (ou « Enregistrer au format PDF » du dialogue) de la page, coupée en feuilles A4.
+    /// Impression (ou « Enregistrer au format PDF » du dialogue) du rapport mis en pages A4.
     private func print() {
-        let host = NSHostingView(rootView: PaperPage(text: text))
-        host.appearance = NSAppearance(named: .aqua)
-        host.frame = NSRect(origin: .zero, size: host.fittingSize)
         let info = NSPrintInfo.shared.copy() as! NSPrintInfo
-        info.paperSize = NSSize(width: 595, height: 842)
+        info.paperSize = PaperPage.a4
         info.topMargin = 0; info.bottomMargin = 0; info.leftMargin = 0; info.rightMargin = 0
-        info.horizontalPagination = .fit
-        info.verticalPagination = .automatic
-        info.jobDisposition = .spool
-        NSPrintOperation(view: host, printInfo: info).run()
+        guard let doc = PDFDocument(data: Self.pdf(text)),
+              let op = doc.printOperation(for: info, scalingMode: .pageScaleNone, autoRotate: false) else { return }
+        op.run()
+    }
+
+    /// PDF A4 vectoriel. Une vue SwiftUI hors fenêtre s'imprime blanche : chaque bloc est donc dessiné par ImageRenderer,
+    /// et les pages se coupent entre deux blocs (un titre reste avec ce qui le suit), jamais au milieu d'une ligne.
+    static func pdf(_ text: String) -> Data {
+        let page = PaperPage.a4, margin: CGFloat = 56, width = page.width - 2 * margin, gap = Socle.M.space2
+        var chunks: [String] = [], pending = ""
+        for c in text.components(separatedBy: "\n\n").map({ $0.trimmingCharacters(in: .newlines) }) where !c.isEmpty {
+            pending += pending.isEmpty ? c : "\n\n" + c
+            if !c.hasPrefix("#") { chunks.append(pending); pending = "" }
+        }
+        if !pending.isEmpty { chunks.append(pending) }
+
+        let data = NSMutableData()
+        var box = CGRect(origin: .zero, size: page)
+        guard let consumer = CGDataConsumer(data: data as CFMutableData),
+              let ctx = CGContext(consumer: consumer, mediaBox: &box, nil) else { return Data() }
+        var y: CGFloat?
+        NSAppearance(named: .aqua)!.performAsCurrentDrawingAppearance {
+            for chunk in chunks {
+                let r = ImageRenderer(content: MarkdownView(text: chunk).frame(width: width).environment(\.colorScheme, .light))
+                r.proposedSize = ProposedViewSize(width: width, height: nil)
+                r.render { size, draw in
+                    if y == nil || (y! + size.height > page.height - margin && y! > margin) {
+                        if y != nil { ctx.endPDFPage() }
+                        ctx.beginPDFPage(nil)
+                        y = margin
+                    }
+                    ctx.saveGState()
+                    ctx.translateBy(x: margin, y: page.height - y! - size.height)
+                    draw(ctx)
+                    ctx.restoreGState()
+                    y! += size.height + gap
+                }
+            }
+        }
+        if y != nil { ctx.endPDFPage() }
+        ctx.closePDF()
+        return data as Data
     }
 }
