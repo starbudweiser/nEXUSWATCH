@@ -16,7 +16,24 @@ struct AISettings: Codable, Equatable {
     var openAIModel = ""
     var anthropicModel = "claude-sonnet-5-5"
     var auto = false
+    /// Tri des posts par Jev (TypeSafe).
+    var jev = false
     var model: String { method == .anthropic ? anthropicModel : openAIModel }
+
+    init() {}
+
+    /// Lecture tolérante : un réglage ajouté plus tard prend sa valeur par défaut.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = AISettings()
+        enabled = try c.decodeIfPresent(Bool.self, forKey: .enabled) ?? d.enabled
+        method = try c.decodeIfPresent(AIMethod.self, forKey: .method) ?? d.method
+        openAIURL = try c.decodeIfPresent(String.self, forKey: .openAIURL) ?? d.openAIURL
+        openAIModel = try c.decodeIfPresent(String.self, forKey: .openAIModel) ?? d.openAIModel
+        anthropicModel = try c.decodeIfPresent(String.self, forKey: .anthropicModel) ?? d.anthropicModel
+        auto = try c.decodeIfPresent(Bool.self, forKey: .auto) ?? d.auto
+        jev = try c.decodeIfPresent(Bool.self, forKey: .jev) ?? d.jev
+    }
 }
 
 /// Clés API rangées dans le trousseau macOS, jamais dans state.json.
@@ -139,11 +156,21 @@ enum AIDigest {
         return s
     }
 
+    /// Conclusions de Jev sur un post, pour orienter l'agent.
+    private static func jevNote(_ p: Post, _ m: ModState) -> String {
+        guard let t = m.postTags?[p.id] else { return "" }
+        var parts: [String] = []
+        if t.isBug { parts.append("likely bug report (\(Int((t.bug ?? 0) * 100)) %)") }
+        if t.isFeature { parts.append("likely feature request (\(Int((t.feature ?? 0) * 100)) %)") }
+        if let tracked = t.trackedAs { parts.append("same problem as tracker bug \"\(tracked)\"") }
+        return parts.isEmpty ? "" : " · Jev: " + parts.joined(separator: ", ")
+    }
+
     private static func postsSection(_ m: ModState) -> String {
         var s = "\n## Posts (\(m.posts.count) shown of \(m.postCount))\n"
         if !m.postsEnabled { s += "\nPosts are disabled on this mod.\n" }
         for p in m.posts {
-            s += "\n### \(who(p.author, m)) — \(L.date(p.date))\(p.sticky ? " — sticky" : "") · Answered by author: \(answered(p.replies, m))\n\n\(quote(p.text))\n"
+            s += "\n### \(who(p.author, m)) — \(L.date(p.date))\(p.sticky ? " — sticky" : "") · Answered by author: \(answered(p.replies, m))\(jevNote(p, m))\n\n\(quote(p.text))\n"
             for r in p.replies { s += "\nReply from \(who(r.author, m)) — \(L.date(r.date)):\n\n\(quote(r.text))\n" }
         }
         return s

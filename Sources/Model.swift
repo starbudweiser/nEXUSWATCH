@@ -92,6 +92,8 @@ struct ModState: Codable, Identifiable {
     var aiReport: AIReport?
     /// Audits IA par bug (identifiant du bug → rapport).
     var bugAudits: [String: AIReport]?
+    /// Tri des posts par Jev (identifiant du post → conclusions).
+    var postTags: [String: PostTag]?
 }
 
 /// Dernier rapport produit par l'agent IA pour un mod.
@@ -108,6 +110,8 @@ struct AppData: Codable {
     var intervalMinutes = 15
     var notifications = true
     var ai: AISettings?
+    /// Réponses de Jev déjà obtenues (empreinte de la question → probabilité « oui »).
+    var jevCache: [String: Double]?
 }
 
 /// Ancien format (un seul mod, réglages dans la config) : lu une fois pour migrer.

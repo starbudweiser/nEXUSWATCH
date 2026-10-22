@@ -477,15 +477,30 @@ struct MessageBlock: View {
 // MARK: Posts
 
 struct PostsView: View {
+    enum Filter: String, CaseIterable { case all, bug, feature }
     @EnvironmentObject var store: Store
     @State private var selection: String?
+    @State private var filter: Filter = .all
 
     var body: some View {
-        let posts = store.state.posts
+        let posts = store.state.posts.filter { p in
+            switch store.jevActive ? filter : .all {
+            case .all: true
+            case .bug: store.tag(p)?.isBug == true
+            case .feature: store.tag(p)?.isFeature == true
+            }
+        }
         if !store.state.postsEnabled { EmptyState(text: L.t("posts.disabled")) }
-        else if posts.isEmpty { EmptyState(text: L.t("posts.empty")) }
+        else if store.state.posts.isEmpty { EmptyState(text: L.t("posts.empty")) }
         else {
             SplitLayout {
+                if store.jevActive {
+                    Picker("", selection: $filter) {
+                        ForEach(Filter.allCases, id: \.self) { Text(L.t("posts.filter.\($0.rawValue)")).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden().padding(Socle.M.space3)
+                    Divider().overlay(Socle.C.borderSubtle)
+                }
                 ForEach(posts) { p in
                     ListRow(selected: selection == p.id, unread: store.isUnread(p)) {
                         selection = p.id
@@ -493,6 +508,7 @@ struct PostsView: View {
                         HStack(spacing: Socle.M.space1_5) {
                             Text(p.author).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(1)
                             if p.sticky { Badge(text: L.t("badge.sticky"), kind: .warning) }
+                            JevBadges(tag: store.tag(p))
                             Spacer()
                             Text(L.ago(p.lastActivity)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
                         }
@@ -527,6 +543,14 @@ struct PostDetail: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Socle.M.space3) {
+                if let tag = store.tag(post), tag.isBug || tag.isFeature {
+                    HStack(spacing: Socle.M.space2) {
+                        JevBadges(tag: tag)
+                        if let tracked = tag.trackedAs {
+                            Text(L.t("jev.tracked", tracked)).socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).lineLimit(1)
+                        }
+                    }
+                }
                 MessageBlock(message: Message(id: post.id, author: post.author, role: post.role, date: post.date, text: post.text),
                              unread: !store.state.seen.contains("p:\(post.id)"), sticky: post.sticky)
                 ForEach(post.replies) { r in
@@ -544,6 +568,17 @@ struct PostDetail: View {
 
     private var replyURL: URL {
         URL(string: store.config.pageURL.absoluteString + "?tab=posts&jump_to_comment=\(post.id)")!
+    }
+}
+
+/// Conclusions de Jev sur un post : bug, demande de fonction.
+struct JevBadges: View {
+    let tag: PostTag?
+    var body: some View {
+        if let tag {
+            if tag.isBug { Badge(text: L.t(tag.trackedAs == nil ? "badge.bug" : "badge.tracked"), kind: tag.trackedAs == nil ? .danger : .neutral) }
+            if tag.isFeature { Badge(text: L.t("badge.feature"), kind: .info) }
+        }
     }
 }
 
@@ -571,6 +606,10 @@ struct BugsView: View {
                     ForEach(Filter.allCases, id: \.self) { Text(L.t("bugs.filter.\($0.rawValue)")).tag($0) }
                 }
                 .pickerStyle(.segmented).labelsHidden().padding(Socle.M.space3)
+                if store.untrackedBugPosts > 0 {
+                    Callout(kind: .warning, text: L.t("bugs.inposts", store.untrackedBugPosts))
+                        .padding([.horizontal, .bottom], Socle.M.space3)
+                }
                 Divider().overlay(Socle.C.borderSubtle)
                 ForEach(bugs) { b in
                     ListRow(selected: selection == b.id, unread: store.isUnread(b)) {
@@ -933,9 +972,44 @@ struct SettingsView: View {
     @State private var ai = AISettings()
     @State private var openAIKey = ""
     @State private var anthropicKey = ""
+    @State private var typesafeKey = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Socle.M.space4) {
+        VStack(spacing: 0) {
+            // Le contenu défile si la fenêtre est trop basse ; les boutons restent visibles.
+            ScrollView {
+                VStack(alignment: .leading, spacing: Socle.M.space4) { content }
+                    .padding(Socle.M.space6)
+            }
+            Divider().overlay(Socle.C.border)
+            HStack(spacing: Socle.M.space2) {
+                Spacer()
+                Button(L.t("action.cancel")) { dismiss() }
+                    .buttonStyle(SocleButtonStyle(.secondary)).fixedSize()
+                Button(L.t("action.save")) {
+                    store.updateSettings(interval: interval, notifications: notify)
+                    store.updateAI(ai, openAIKey: openAIKey, anthropicKey: anthropicKey, typesafeKey: typesafeKey)
+                    dismiss()
+                }
+                .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
+                .keyboardShortcut(.defaultAction)
+            }
+            .padding(.horizontal, Socle.M.space6).padding(.vertical, Socle.M.space4)
+        }
+        .frame(width: 600)
+        .frame(minHeight: 360, idealHeight: 640, maxHeight: 640)
+        .background(Socle.C.surface)
+        .onAppear {
+            interval = store.data.intervalMinutes
+            notify = store.data.notifications
+            ai = store.ai
+            openAIKey = Keychain.get("openai")
+            anthropicKey = Keychain.get("anthropic")
+            typesafeKey = Keychain.get("typesafe")
+        }
+    }
+
+    @ViewBuilder private var content: some View {
             Text(L.t("settings.title")).socle(Socle.T.heading).foregroundStyle(Socle.C.textStrong)
             HStack {
                 Text(L.t("settings.interval")).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
@@ -948,29 +1022,6 @@ struct SettingsView: View {
             Text(L.t("settings.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
             Divider().overlay(Socle.C.border)
             aiSection
-            HStack(spacing: Socle.M.space2) {
-                Spacer()
-                Button(L.t("action.cancel")) { dismiss() }
-                    .buttonStyle(SocleButtonStyle(.secondary)).fixedSize()
-                Button(L.t("action.save")) {
-                    store.updateSettings(interval: interval, notifications: notify)
-                    store.updateAI(ai, openAIKey: openAIKey, anthropicKey: anthropicKey)
-                    dismiss()
-                }
-                .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
-                .keyboardShortcut(.defaultAction)
-            }
-        }
-        .padding(Socle.M.space6)
-        .frame(width: 600)
-        .background(Socle.C.surface)
-        .onAppear {
-            interval = store.data.intervalMinutes
-            notify = store.data.notifications
-            ai = store.ai
-            openAIKey = Keychain.get("openai")
-            anthropicKey = Keychain.get("anthropic")
-        }
     }
 
     @ViewBuilder private var aiSection: some View {
@@ -1000,6 +1051,10 @@ struct SettingsView: View {
             case .mcp:
                 MCPHelp()
             }
+            Toggle(L.t("jev.enable"), isOn: $ai.jev).socle(Socle.T.body)
+            Text(L.t("jev.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                .fixedSize(horizontal: false, vertical: true)
+            if ai.jev { field(L.t("jev.key")) { SecureField("", text: $typesafeKey) } }
         }
     }
 

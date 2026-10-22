@@ -68,11 +68,15 @@ final class Store: ObservableObject {
 
     var ai: AISettings { data.ai ?? AISettings() }
 
-    func updateAI(_ s: AISettings, openAIKey: String, anthropicKey: String) {
+    func updateAI(_ s: AISettings, openAIKey: String, anthropicKey: String, typesafeKey: String) {
+        let classifyNow = s.enabled && s.jev && !typesafeKey.isEmpty && !jevActive
         data.ai = s
         Keychain.set(openAIKey, "openai")
         Keychain.set(anthropicKey, "anthropic")
+        Keychain.set(typesafeKey, "typesafe")
+        hasTypesafeKey = !typesafeKey.isEmpty
         save()
+        if classifyNow { Task { for id in data.mods.map(\.id) { await classify(id) }; save() } }
     }
 
     func schedule() {
@@ -144,15 +148,38 @@ final class Store: ObservableObject {
             failure = error.localizedDescription
         }
         errors[id] = failure
+        if jevActive { await classify(id) }
         save()
 
         guard let after = data.mods.first(where: { $0.id == id }) else { return }
         let added = after.unreadKeys.subtracting(before)
         if !firstLoad, !added.isEmpty, data.notifications { notify(added, mod: after) }
-        // Un nouveau bug, un bug relancé ou un nouveau post relance l'audit.
-        if !firstLoad, ai.enabled, ai.auto, ai.method.usesAPI, !added.isEmpty {
+        // Un nouveau bug ou un bug relancé relance l'audit ; un post aussi, sauf si Jev le juge sans bug ni demande.
+        let worth = added.contains { $0.hasPrefix("b:") } || after.posts.contains { p in
+            (added.contains("p:\(p.id)") || p.replies.contains { added.contains("r:\($0.id)") })
+                && (after.postTags?[p.id].map { $0.isBug || $0.isFeature } ?? true)
+        }
+        if !firstLoad, ai.enabled, ai.auto, ai.method.usesAPI, worth {
             Task { await analyze(id, notifyWhenDone: true) }
         }
+    }
+
+    // MARK: Tri Jev
+
+    /// Lue une fois dans le trousseau, puis tenue à jour par les réglages.
+    private var hasTypesafeKey = !Keychain.get("typesafe").isEmpty
+    var jevActive: Bool { ai.enabled && ai.jev && hasTypesafeKey }
+    func tag(_ p: Post) -> PostTag? { jevActive ? state.postTags?[p.id] : nil }
+    /// Bugs signalés dans les posts mais absents du tracker.
+    var untrackedBugPosts: Int { state.posts.filter { tag($0)?.isBug == true && tag($0)?.trackedAs == nil }.count }
+
+    private func classify(_ id: String) async {
+        guard let mod = data.mods.first(where: { $0.id == id }) else { return }
+        var cache = data.jevCache ?? [:]
+        let tags = await Jev.tags(for: mod, apiKey: Keychain.get("typesafe"), cache: &cache)
+        if cache.count > 20_000 { cache = [:] }
+        data.jevCache = cache
+        if let tags { update(id) { $0.postTags = tags } }
     }
 
     // MARK: Agent IA
