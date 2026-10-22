@@ -89,6 +89,14 @@ struct ModState: Codable, Identifiable {
     var notes: [String: String] = [:]
     var history: [Snapshot] = []
     var lastCheck: Date?
+    var aiReport: AIReport?
+}
+
+/// Dernier rapport produit par l'agent IA pour un mod.
+struct AIReport: Codable {
+    var text: String
+    var date: Date
+    var model: String
 }
 
 /// Ensemble de l'état enregistré : mods suivis et réglages communs.
@@ -97,6 +105,7 @@ struct AppData: Codable {
     var selected: String?
     var intervalMinutes = 15
     var notifications = true
+    var ai: AISettings?
 }
 
 /// Ancien format (un seul mod, réglages dans la config) : lu une fois pour migrer.

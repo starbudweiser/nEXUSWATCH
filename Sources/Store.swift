@@ -8,6 +8,9 @@ final class Store: ObservableObject {
     /// Identifiant du mod en cours de vérification (une seule à la fois : le lecteur de page est partagé).
     @Published var refreshing: String?
     @Published var errors: [String: String] = [:]
+    /// Identifiant du mod en cours d'analyse par l'agent IA.
+    @Published var analyzing: String?
+    @Published var aiErrors: [String: String] = [:]
     let fetcher = NexusFetcher()
     private var timer: Timer?
     private var queue: [String] = []
@@ -52,7 +55,7 @@ final class Store: ObservableObject {
 
     func removeMod(_ id: String) {
         data.mods.removeAll { $0.id == id }
-        errors[id] = nil
+        errors[id] = nil; aiErrors[id] = nil
         if data.selected == id { data.selected = data.mods.first?.id }
         save(); updateBadge()
     }
@@ -61,6 +64,15 @@ final class Store: ObservableObject {
         data.intervalMinutes = interval; data.notifications = notifications
         if notifications { requestNotifications() }
         save(); schedule()
+    }
+
+    var ai: AISettings { data.ai ?? AISettings() }
+
+    func updateAI(_ s: AISettings, openAIKey: String, anthropicKey: String) {
+        data.ai = s
+        Keychain.set(openAIKey, "openai")
+        Keychain.set(anthropicKey, "anthropic")
+        save()
     }
 
     func schedule() {
@@ -137,6 +149,32 @@ final class Store: ObservableObject {
         guard let after = data.mods.first(where: { $0.id == id }) else { return }
         let added = after.unreadKeys.subtracting(before)
         if !firstLoad, !added.isEmpty, data.notifications { notify(added, mod: after) }
+        if !firstLoad, ai.enabled, ai.auto, ai.method.usesAPI, added.contains(where: { $0.hasPrefix("p:") || $0.hasPrefix("r:") }) {
+            Task { await analyze(id, notifyWhenDone: true) }
+        }
+    }
+
+    // MARK: Agent IA
+
+    /// Envoie les données du mod à l'API choisie et garde le rapport obtenu.
+    func analyze(_ id: String, notifyWhenDone: Bool = false) async {
+        guard analyzing == nil, let mod = data.mods.first(where: { $0.id == id }) else { return }
+        let settings = ai
+        analyzing = id; aiErrors[id] = nil
+        defer { analyzing = nil }
+        do {
+            let text = try await AIClient.analyze(AIDigest.markdown(mod), settings: settings)
+            update(id) { $0.aiReport = AIReport(text: text, date: Date(), model: settings.model) }
+            save()
+            if notifyWhenDone, data.notifications {
+                let content = UNMutableNotificationContent()
+                content.title = L.t("ai.notif")
+                content.body = mod.displayName
+                UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil), withCompletionHandler: nil)
+            }
+        } catch {
+            aiErrors[id] = error.localizedDescription
+        }
     }
 
     /// Progression sur environ 24 h du mod affiché.

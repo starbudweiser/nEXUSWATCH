@@ -1,8 +1,16 @@
 // nEXUSWATCH — surveille des mods Nexus Mods (stats, posts, bugs) sans ouvrir sa page.
 import SwiftUI
+import UniformTypeIdentifiers
 import WebKit
 
+/// « NexusWatch --mcp » sert les données à un agent IA sans ouvrir de fenêtre.
 @main
+enum Launcher {
+    static func main() {
+        if CommandLine.arguments.contains("--mcp") { MCPServer.run() } else { NexusWatchApp.main() }
+    }
+}
+
 struct NexusWatchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var store = Store()
@@ -45,7 +53,7 @@ struct HiddenWebView: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
-enum Tab: String, CaseIterable { case posts, bugs, files }
+enum Tab: String, CaseIterable { case posts, bugs, files, ai }
 
 struct RootView: View {
     @EnvironmentObject var store: Store
@@ -93,6 +101,7 @@ struct RootView: View {
                 case .posts: PostsView()
                 case .bugs: BugsView()
                 case .files: FilesView()
+                case .ai: if store.ai.enabled { AIView() } else { PostsView() }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -295,6 +304,7 @@ struct TabsBar: View {
             item(.posts, L.t("tab.posts"), store.unreadPosts)
             item(.bugs, L.t("tab.bugs"), store.unreadBugs)
             item(.files, L.t("tab.files"), 0)
+            if store.ai.enabled { item(.ai, L.t("tab.ai"), 0) }
             Spacer()
         }
         .padding(.horizontal, Socle.M.space3)
@@ -684,6 +694,112 @@ struct FilesView: View {
     }
 }
 
+// MARK: Agent IA
+
+func copyToPasteboard(_ text: String) {
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(text, forType: .string)
+}
+
+/// Bouton de copie qui affiche « Copié » deux secondes.
+struct CopyButton: View {
+    let title: String
+    var style: SocleButtonStyle = SocleButtonStyle(.secondary, height: Socle.M.sizeControl)
+    let text: () -> String
+    @State private var copied = false
+
+    var body: some View {
+        Button(copied ? L.t("action.copied") : title) {
+            copyToPasteboard(text()); copied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copied = false }
+        }
+        .buttonStyle(style).fixedSize()
+    }
+}
+
+struct AIView: View {
+    @EnvironmentObject var store: Store
+
+    var body: some View {
+        let ai = store.ai, mod = store.state
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: Socle.M.space2) {
+                Text(L.t("ai.method.\(ai.method.rawValue)")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                Spacer(minLength: Socle.M.space4)
+                if store.analyzing == mod.id {
+                    ProgressView().controlSize(.small)
+                    Text(L.t("ai.analyzing")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                }
+                if let r = mod.aiReport, ai.method.usesAPI { CopyButton(title: L.t("ai.copyreport")) { r.text } }
+                CopyButton(title: L.t("ai.copy")) { AIDigest.prompt(mod) }
+                if ai.method == .export {
+                    Button(L.t("ai.save")) { save(AIDigest.prompt(mod), name: mod.displayName) }
+                        .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
+                }
+                if ai.method.usesAPI {
+                    Button(L.t("ai.analyze")) { Task { await store.analyze(mod.id) } }
+                        .buttonStyle(SocleButtonStyle(.primary, height: Socle.M.sizeControl)).fixedSize()
+                        .disabled(store.analyzing != nil)
+                }
+            }
+            .padding(Socle.M.space3)
+            Divider().overlay(Socle.C.border)
+            if let e = store.aiErrors[mod.id] {
+                Callout(kind: .warning, text: e).padding(Socle.M.space3)
+            }
+            switch ai.method {
+            case .mcp:
+                ScrollView { MCPHelp().padding(Socle.M.space4) }
+            case .export:
+                EmptyState(text: L.t("ai.empty.export"))
+            case .openai, .anthropic:
+                if let r = mod.aiReport {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: Socle.M.space3) {
+                            Text(L.t("ai.generated", L.date(r.date), r.model)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                            Text(Self.markdown(r.text)).socle(Socle.T.reading).foregroundStyle(Socle.C.text)
+                                .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(Socle.M.space4)
+                    }
+                } else {
+                    EmptyState(text: L.t("ai.empty"))
+                }
+            }
+        }
+    }
+
+    static func markdown(_ text: String) -> AttributedString {
+        (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+            ?? AttributedString(text)
+    }
+
+    private func save(_ text: String, name: String) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "\(name).md"
+        panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
+        if panel.runModal() == .OK, let url = panel.url { try? text.write(to: url, atomically: true, encoding: .utf8) }
+    }
+}
+
+/// Mode d'emploi du serveur MCP, avec la configuration prête à copier.
+struct MCPHelp: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: Socle.M.space2) {
+            Text(L.t("ai.mcp.note")).socle(Socle.T.body).foregroundStyle(Socle.C.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(MCPServer.configJSON).socle(Socle.T.monoSm).foregroundStyle(Socle.C.text).textSelection(.enabled)
+                .padding(Socle.M.space2).frame(maxWidth: .infinity, alignment: .leading)
+                .background(Socle.C.bgInset, in: RoundedRectangle(cornerRadius: Socle.M.radius))
+                .overlay(RoundedRectangle(cornerRadius: Socle.M.radius).stroke(Socle.C.borderControl, lineWidth: 1))
+            HStack(spacing: Socle.M.space2) {
+                CopyButton(title: L.t("ai.mcp.copyjson")) { MCPServer.configJSON }
+                CopyButton(title: L.t("ai.mcp.copyclaude")) { MCPServer.claudeCommand }
+            }
+        }
+    }
+}
+
 // MARK: Réglages
 
 struct SettingsView: View {
@@ -691,6 +807,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var interval = 15
     @State private var notify = true
+    @State private var ai = AISettings()
+    @State private var openAIKey = ""
+    @State private var anthropicKey = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: Socle.M.space4) {
@@ -704,23 +823,67 @@ struct SettingsView: View {
             }
             Toggle(L.t("settings.notify"), isOn: $notify).socle(Socle.T.body)
             Text(L.t("settings.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+            Divider().overlay(Socle.C.border)
+            aiSection
             HStack(spacing: Socle.M.space2) {
                 Spacer()
                 Button(L.t("action.cancel")) { dismiss() }
                     .buttonStyle(SocleButtonStyle(.secondary)).fixedSize()
                 Button(L.t("action.save")) {
-                    store.updateSettings(interval: interval, notifications: notify); dismiss()
+                    store.updateSettings(interval: interval, notifications: notify)
+                    store.updateAI(ai, openAIKey: openAIKey, anthropicKey: anthropicKey)
+                    dismiss()
                 }
                 .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
                 .keyboardShortcut(.defaultAction)
             }
         }
         .padding(Socle.M.space6)
-        .frame(width: 520)
+        .frame(width: 600)
         .background(Socle.C.surface)
         .onAppear {
             interval = store.data.intervalMinutes
             notify = store.data.notifications
+            ai = store.ai
+            openAIKey = Keychain.get("openai")
+            anthropicKey = Keychain.get("anthropic")
+        }
+    }
+
+    @ViewBuilder private var aiSection: some View {
+        Toggle(L.t("ai.enable"), isOn: $ai.enabled).socle(Socle.T.labelStrong)
+        Text(L.t("ai.enable.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+            .fixedSize(horizontal: false, vertical: true)
+        if ai.enabled {
+            HStack {
+                Text(L.t("ai.method")).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
+                Picker("", selection: $ai.method) {
+                    ForEach(AIMethod.allCases) { Text(L.t("ai.method.\($0.rawValue)")).tag($0) }
+                }
+                .labelsHidden()
+            }
+            switch ai.method {
+            case .export:
+                Text(L.t("ai.empty.export")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+            case .openai:
+                field(L.t("ai.url")) { TextField("https://api.openai.com/v1", text: $ai.openAIURL) }
+                field(L.t("ai.model")) { TextField(L.t("ai.model.hint"), text: $ai.openAIModel) }
+                field(L.t("ai.key.optional")) { SecureField("", text: $openAIKey) }
+                Toggle(L.t("ai.auto"), isOn: $ai.auto).socle(Socle.T.body)
+            case .anthropic:
+                field(L.t("ai.model")) { TextField("claude-sonnet-5-5", text: $ai.anthropicModel) }
+                field(L.t("ai.key")) { SecureField("", text: $anthropicKey) }
+                Toggle(L.t("ai.auto"), isOn: $ai.auto).socle(Socle.T.body)
+            case .mcp:
+                MCPHelp()
+            }
+        }
+    }
+
+    private func field<F: View>(_ label: String, @ViewBuilder _ input: () -> F) -> some View {
+        VStack(alignment: .leading, spacing: Socle.M.space1) {
+            Text(label).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
+            input().textFieldStyle(.roundedBorder).socle(Socle.T.mono)
         }
     }
 }

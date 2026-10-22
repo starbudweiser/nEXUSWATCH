@@ -19,6 +19,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - **Posts**: latest threads with their replies, "New" badge, your own messages marked as read.
 - **Bugs**: every report with its Nexus status and full messages, local tracking (To triage → Fix released), test notes and **Copy for a fix** (Markdown report to the clipboard).
 - **Files**: downloads per file and Nexus virus-scan status (quarantined files flagged).
+- **AI agent support** (optional, in the settings): sends the stats and posts to the AI agent of your choice, which sorts them into bug reports, feature requests and open questions. Four methods: Markdown export to paste anywhere, OpenAI-compatible API (OpenAI, Mistral, OpenRouter, Ollama, LM Studio…), Anthropic API (Claude) or local MCP server (Claude Code, Claude Desktop, Cursor…). On demand or automatically when new posts arrive; API keys stay in the macOS keychain.
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
 
@@ -43,7 +44,8 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. No Pyt
 1. Open nEXUSWATCH, click **+** in the sidebar and paste the URL of a mod page; repeat for each mod.
 2. Click the gear icon to pick the check interval and turn on notifications.
 3. Right-click a mod in the sidebar to remove it.
-4. Read new posts and bugs in their tabs; **Reply on Nexus** opens the right page.
+4. Optional: turn on **AI agent support** in the settings, pick a method, then use the **AI report** tab.
+5. Read new posts and bugs in their tabs; **Reply on Nexus** opens the right page.
 
 ### FAQ
 
@@ -52,7 +54,7 @@ Nexus sometimes shows a Cloudflare check: wait a moment and click **Refresh**.
 
 ### Privacy
 
-Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH).
+Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. With AI agent support on, the mod's stats, posts and bug reports are sent only to the AI service you chose, and only when an analysis runs; API keys are kept in the macOS keychain. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH).
 
 ### Building from source
 
@@ -81,6 +83,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Posts** : derniers fils avec leurs réponses, badge « Nouveau », vos propres messages lus d'office.
 - **Bugs** : tous les rapports avec leur statut Nexus et leurs messages complets, suivi local (À trier → Correctif publié), notes de test et **Copier pour correctif** (rapport Markdown dans le presse-papiers).
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
+- **Support agent IA** (facultatif, dans les réglages) : envoie les stats et les posts à l'agent IA de votre choix, qui les trie en rapports de bugs, demandes de fonctions et questions en attente. Quatre méthodes : export Markdown à coller où vous voulez, API compatible OpenAI (OpenAI, Mistral, OpenRouter, Ollama, LM Studio…), API Anthropic (Claude) ou serveur MCP local (Claude Code, Claude Desktop, Cursor…). À la demande ou automatiquement à l'arrivée de nouveaux posts ; les clés API restent dans le trousseau macOS.
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
 
@@ -105,7 +108,8 @@ Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus réce
 1. Ouvrez nEXUSWATCH, cliquez sur **+** dans la barre latérale et collez l'URL de la page d'un mod ; recommencez pour chaque mod.
 2. Cliquez sur la roue dentée pour choisir l'intervalle de vérification et activer les notifications.
 3. Clic droit sur un mod de la barre latérale pour le retirer.
-4. Lisez les nouveaux posts et bugs dans leurs onglets ; **Répondre sur Nexus** ouvre la bonne page.
+4. Facultatif : activez le **Support agent IA** dans les réglages, choisissez une méthode puis utilisez l'onglet **Rapport IA**.
+5. Lisez les nouveaux posts et bugs dans leurs onglets ; **Répondre sur Nexus** ouvre la bonne page.
 
 ### Questions fréquentes
 
@@ -114,7 +118,7 @@ Nexus affiche parfois un contrôle Cloudflare : patientez un instant puis clique
 
 ### Confidentialité
 
-Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont lues, sans compte ni clé API. L'état lu, le suivi des bugs et les notes restent sur votre Mac (~/Library/Application Support/nEXUSWATCH).
+Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont lues, sans compte ni clé API. Avec le support agent IA, les stats, posts et rapports de bugs du mod ne sont envoyés qu'au service IA que vous avez choisi, et seulement lors d'une analyse ; les clés API restent dans le trousseau macOS. L'état lu, le suivi des bugs et les notes restent sur votre Mac (~/Library/Application Support/nEXUSWATCH).
 
 ### Compiler depuis les sources
 
