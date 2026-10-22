@@ -748,10 +748,15 @@ struct AIView: View {
                 Callout(kind: .warning, text: e).padding(Socle.M.space3)
             }
             switch ai.method {
-            case .mcp:
-                ScrollView { MCPHelp().padding(Socle.M.space4) }
-            case .export:
-                EmptyState(text: L.t("ai.empty.export"))
+            case .mcp, .export:
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Socle.M.space3) {
+                        Text(L.t("ai.preview.\(ai.method.rawValue)")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                        Text(Self.markdown(AIDigest.markdown(mod))).socle(Socle.T.reading).foregroundStyle(Socle.C.text)
+                            .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(Socle.M.space4)
+                }
             case .openai, .anthropic:
                 if let r = mod.aiReport {
                     ScrollView {
