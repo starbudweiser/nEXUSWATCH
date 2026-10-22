@@ -127,7 +127,7 @@ enum LocalAudit {
             s += "- \(L.t("report.item.signals", it.reports, L.ago(it.bug.lastPost), versionNumber(it.bug.version)))\n"
             s += "- \(L.t("report.action")) \(L.t("report.action.\(it.action)"))\n"
             for msg in it.bug.messages.prefix(4) where !msg.text.isEmpty {
-                s += "> **\(msg.author)** : \(excerpt(msg.text, 600))\n"
+                s += "> \(L.t("agent.quote", msg.author, excerpt(msg.text, 600)))\n"
             }
             s += "\n"
         }
@@ -139,7 +139,7 @@ enum LocalAudit {
         }
         if !untracked.isEmpty {
             s += "## \(L.t("report.untracked"))\n\n\(L.t("agent.untracked"))\n\n"
-            for p in untracked { s += "- **\(p.author)** : \(excerpt(p.text, 300))\n" }
+            for p in untracked { s += "- \(L.t("agent.quote", p.author, excerpt(p.text, 300)))\n" }
             s += "\n"
         }
         s += "## \(L.t("agent.method"))\n\n\(L.t("agent.rules"))\n\n\(L.t("report.note.lang"))\n"
