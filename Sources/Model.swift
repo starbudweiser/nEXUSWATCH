@@ -3,9 +3,8 @@ import Foundation
 
 struct ModConfig: Codable, Equatable {
     var domain = "skyrimspecialedition"
-    var modId = 196272
-    var intervalMinutes = 15
-    var notifications = true
+    var modId = 0
+    var id: String { "\(domain)/\(modId)" }
     var pageURL: URL { URL(string: "https://www.nexusmods.com/\(domain)/mods/\(modId)")! }
 
     /// Accepte une URL de page Nexus ou un simple identifiant.
@@ -75,8 +74,10 @@ struct Snapshot: Codable {
     var endorsements, downloads, unique: Int
 }
 
-struct Persisted: Codable {
+/// État d'un mod suivi.
+struct ModState: Codable, Identifiable {
     var config = ModConfig()
+    var id: String { config.id }
     var stats: ModStats?
     var posts: [Post] = []
     var postCount = 0
@@ -90,6 +91,20 @@ struct Persisted: Codable {
     var lastCheck: Date?
 }
 
+/// Ensemble de l'état enregistré : mods suivis et réglages communs.
+struct AppData: Codable {
+    var mods: [ModState] = []
+    var selected: String?
+    var intervalMinutes = 15
+    var notifications = true
+}
+
+/// Ancien format (un seul mod, réglages dans la config) : lu une fois pour migrer.
+private struct LegacyData: Decodable {
+    struct Config: Decodable { var intervalMinutes: Int; var notifications: Bool }
+    var config: Config
+}
+
 enum Storage {
     static let url: URL = {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -98,13 +113,17 @@ enum Storage {
         return dir.appendingPathComponent("state.json")
     }()
 
-    static func load() -> Persisted {
-        guard let data = try? Data(contentsOf: url) else { return Persisted() }
+    static func load() -> AppData {
+        guard let data = try? Data(contentsOf: url) else { return AppData() }
         let d = JSONDecoder(); d.dateDecodingStrategy = .secondsSince1970
-        return (try? d.decode(Persisted.self, from: data)) ?? Persisted()
+        if let app = try? d.decode(AppData.self, from: data) { return app }
+        guard let mod = try? d.decode(ModState.self, from: data), let legacy = try? d.decode(LegacyData.self, from: data)
+        else { return AppData() }
+        return AppData(mods: [mod], selected: mod.id,
+                       intervalMinutes: legacy.config.intervalMinutes, notifications: legacy.config.notifications)
     }
 
-    static func save(_ p: Persisted) {
+    static func save(_ p: AppData) {
         let e = JSONEncoder(); e.dateEncodingStrategy = .secondsSince1970
         if let data = try? e.encode(p) { try? data.write(to: url, options: .atomic) }
     }

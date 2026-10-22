@@ -1,4 +1,4 @@
-// nEXUSWATCH — surveille un mod Nexus Mods (stats, posts, bugs) sans ouvrir sa page.
+// nEXUSWATCH — surveille des mods Nexus Mods (stats, posts, bugs) sans ouvrir sa page.
 import SwiftUI
 import WebKit
 
@@ -11,14 +11,16 @@ struct NexusWatchApp: App {
         Window("nEXUSWATCH", id: "main") {
             RootView()
                 .environmentObject(store)
-                .frame(minWidth: 980, minHeight: 640)
-                .task { await store.refresh() }
+                .frame(minWidth: 1180, minHeight: 640)
+                .task { await store.refreshAll() }
         }
-        .defaultSize(width: 1180, height: 760)
+        .defaultSize(width: 1400, height: 780)
         .commands {
             CommandGroup(after: .newItem) {
-                Button(L.t("action.refresh").capitalized) { Task { await store.refresh() } }
+                Button(L.t("action.refresh").capitalized) { Task { await store.refreshCurrent() } }
                     .keyboardShortcut("r")
+                Button(L.t("action.refreshall")) { Task { await store.refreshAll() } }
+                    .keyboardShortcut("r", modifiers: [.command, .shift])
             }
         }
     }
@@ -49,8 +51,29 @@ struct RootView: View {
     @EnvironmentObject var store: Store
     @State private var tab: Tab = .posts
     @State private var settings = false
+    @State private var adding = false
 
     var body: some View {
+        HStack(spacing: 0) {
+            ModSidebar(adding: $adding)
+            Divider().overlay(Socle.C.border)
+            if store.hasMods { main }
+            else {
+                VStack(spacing: Socle.M.space3) {
+                    EmptyState(text: L.t("mods.empty")).frame(maxHeight: 120)
+                    Button(L.t("mods.add")) { adding = true }
+                        .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(Socle.C.bg)
+        .background(HiddenWebView(webView: store.fetcher.webView).frame(width: 1, height: 1))
+        .sheet(isPresented: $settings) { SettingsView().environmentObject(store) }
+        .sheet(isPresented: $adding) { AddModView().environmentObject(store) }
+    }
+
+    private var main: some View {
         VStack(spacing: 0) {
             HeaderBar(settings: $settings)
             Divider().overlay(Socle.C.border)
@@ -74,12 +97,103 @@ struct RootView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(Socle.C.bg)
-        .background(HiddenWebView(webView: store.fetcher.webView).frame(width: 1, height: 1))
-        .sheet(isPresented: $settings) { SettingsView().environmentObject(store) }
     }
 
     private var quarantined: Int? { store.state.stats?.files.filter { $0.scan == "QUARANTINED" }.count }
+}
+
+// MARK: Mods suivis
+
+struct ModSidebar: View {
+    @EnvironmentObject var store: Store
+    @Binding var adding: Bool
+    @State private var removing: ModState?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Socle.M.space1_5) {
+                Text(L.t("mods.title").uppercased()).socle(Socle.T.eyebrow).foregroundStyle(Socle.C.textSubtle)
+                Spacer()
+                Button { Task { await store.refreshAll() } } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.plain).foregroundStyle(Socle.C.textMuted)
+                    .disabled(store.busy || !store.hasMods).help(L.t("action.refreshall"))
+                Button { adding = true } label: { Image(systemName: "plus") }
+                    .buttonStyle(.plain).foregroundStyle(Socle.C.textMuted).help(L.t("mods.add"))
+            }
+            .padding(.horizontal, Socle.M.space3)
+            .frame(minHeight: Socle.M.sizeBar + 8)
+            Divider().overlay(Socle.C.border)
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(store.data.mods) { m in
+                        ListRow(selected: m.id == store.state.id, unread: m.unreadPosts + m.unreadBugs > 0) {
+                            store.select(m.id)
+                        } content: {
+                            HStack(spacing: Socle.M.space1_5) {
+                                Text(m.displayName).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(2)
+                                Spacer(minLength: 0)
+                                if store.refreshing == m.id { ProgressView().controlSize(.mini) }
+                                else if m.unreadPosts + m.unreadBugs > 0 { CountBadge(n: m.unreadPosts + m.unreadBugs) }
+                            }
+                            HStack(spacing: Socle.M.space1_5) {
+                                Text(m.config.domain).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                                if store.errors[m.id] != nil {
+                                    Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
+                                }
+                                if m.stats?.files.contains(where: { $0.scan == "QUARANTINED" }) == true {
+                                    Image(systemName: "exclamationmark.octagon").foregroundStyle(Socle.C.danger)
+                                }
+                            }
+                        }
+                        .contextMenu {
+                            Button(L.t("action.open")) { NSWorkspace.shared.open(m.config.pageURL) }
+                            Button(L.t("mods.remove")) { removing = m }
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: 230)
+        .background(Socle.C.surface)
+        .confirmationDialog(L.t("mods.remove.confirm", removing?.displayName ?? ""),
+                            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } })) {
+            Button(L.t("mods.remove"), role: .destructive) { if let m = removing { store.removeMod(m.id) } }
+        }
+    }
+}
+
+struct AddModView: View {
+    @EnvironmentObject var store: Store
+    @Environment(\.dismiss) private var dismiss
+    @State private var mod = ""
+    @State private var problem: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Socle.M.space4) {
+            Text(L.t("mods.add")).socle(Socle.T.heading).foregroundStyle(Socle.C.textStrong)
+            VStack(alignment: .leading, spacing: Socle.M.space1_5) {
+                Text(L.t("settings.mod")).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
+                TextField("", text: $mod).textFieldStyle(.roundedBorder).socle(Socle.T.mono)
+                if let problem { Text(problem).socle(Socle.T.meta).foregroundStyle(Socle.C.danger) }
+            }
+            Text(L.t("settings.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+            HStack(spacing: Socle.M.space2) {
+                Spacer()
+                Button(L.t("action.cancel")) { dismiss() }
+                    .buttonStyle(SocleButtonStyle(.secondary)).fixedSize()
+                Button(L.t("action.add")) {
+                    problem = store.addMod(mod)
+                    if problem == nil { dismiss() }
+                }
+                .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
+                .keyboardShortcut(.defaultAction)
+                .disabled(mod.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+        .padding(Socle.M.space6)
+        .frame(width: 520)
+        .background(Socle.C.surface)
+    }
 }
 
 // MARK: En-tête
@@ -111,7 +225,7 @@ struct HeaderBar: View {
             Button { settings = true } label: { Image(systemName: "gearshape") }
                 .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
                 .help(L.t("action.settings"))
-            Button(L.t("action.refresh")) { Task { await store.refresh() } }
+            Button(L.t("action.refresh")) { Task { await store.refreshCurrent() } }
                 .buttonStyle(SocleButtonStyle(.primary, height: Socle.M.sizeControl)).fixedSize()
                 .disabled(store.loading)
         }
@@ -574,19 +688,12 @@ struct FilesView: View {
 struct SettingsView: View {
     @EnvironmentObject var store: Store
     @Environment(\.dismiss) private var dismiss
-    @State private var mod = ""
     @State private var interval = 15
     @State private var notify = true
-    @State private var invalid = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: Socle.M.space4) {
             Text(L.t("settings.title")).socle(Socle.T.heading).foregroundStyle(Socle.C.textStrong)
-            VStack(alignment: .leading, spacing: Socle.M.space1_5) {
-                Text(L.t("settings.mod")).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
-                TextField("", text: $mod).textFieldStyle(.roundedBorder).socle(Socle.T.mono)
-                if invalid { Text(L.t("settings.mod.invalid")).socle(Socle.T.meta).foregroundStyle(Socle.C.danger) }
-            }
             HStack {
                 Text(L.t("settings.interval")).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
                 Picker("", selection: $interval) {
@@ -601,10 +708,7 @@ struct SettingsView: View {
                 Button(L.t("action.cancel")) { dismiss() }
                     .buttonStyle(SocleButtonStyle(.secondary)).fixedSize()
                 Button(L.t("action.save")) {
-                    var c = store.config
-                    guard c.parse(mod) else { invalid = true; return }
-                    c.intervalMinutes = interval; c.notifications = notify
-                    store.updateConfig(c); dismiss()
+                    store.updateSettings(interval: interval, notifications: notify); dismiss()
                 }
                 .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
                 .keyboardShortcut(.defaultAction)
@@ -614,9 +718,8 @@ struct SettingsView: View {
         .frame(width: 520)
         .background(Socle.C.surface)
         .onAppear {
-            mod = store.config.pageURL.absoluteString
-            interval = store.config.intervalMinutes
-            notify = store.config.notifications
+            interval = store.data.intervalMinutes
+            notify = store.data.notifications
         }
     }
 }

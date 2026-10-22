@@ -1,7 +1,7 @@
 # nEXUSWATCH
 
-**For mod authors: keeps an eye on your Nexus Mods page — stats, posts, bug reports and files — without opening it.**  
-*Pour les auteurs de mods : surveille votre page Nexus Mods — stats, posts, rapports de bugs et fichiers — sans l'ouvrir.*
+**For mod authors: keeps an eye on your Nexus Mods pages — stats, posts, bug reports and files — without opening it.**  
+*Pour les auteurs de mods : surveille vos pages Nexus Mods — stats, posts, rapports de bugs et fichiers — sans l'ouvrir.*
 
 🇬🇧 [English](#-english) · 🇫🇷 [Français](#-français)
 
@@ -14,6 +14,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 
 ### Features
 
+- **Several mods**: watch as many mod pages as you like from the sidebar, each with its own unread count.
 - **Stats**: endorsements, downloads, unique downloads, version and 24-hour progress.
 - **Posts**: latest threads with their replies, "New" badge, your own messages marked as read.
 - **Bugs**: every report with its Nexus status and full messages, local tracking (To triage → Fix released), test notes and **Copy for a fix** (Markdown report to the clipboard).
@@ -39,9 +40,10 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. No Pyt
 
 ### How to use
 
-1. Open nEXUSWATCH, click the gear icon and paste the URL of your mod page.
-2. Pick the check interval and turn on notifications.
-3. Read new posts and bugs in their tabs; **Reply on Nexus** opens the right page.
+1. Open nEXUSWATCH, click **+** in the sidebar and paste the URL of a mod page; repeat for each mod.
+2. Click the gear icon to pick the check interval and turn on notifications.
+3. Right-click a mod in the sidebar to remove it.
+4. Read new posts and bugs in their tabs; **Reply on Nexus** opens the right page.
 
 ### FAQ
 
@@ -54,7 +56,7 @@ Only the mod's public pages and the public Nexus Mods GraphQL API are read, with
 
 ### Building from source
 
-Requires Python 3.12 with PyQt6 and PyInstaller. From the repository folder:
+Requires the Xcode Command Line Tools (Swift 5.9 or later). From the repository folder:
 
 ```bash
 ./build_app.sh
@@ -74,6 +76,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 
 ### Fonctions
 
+- **Plusieurs mods** : suivez autant de pages de mods que vous voulez depuis la barre latérale, chacune avec son compteur de non-lus.
 - **Stats** : endorsements, téléchargements, DL uniques, version et progression sur 24 h.
 - **Posts** : derniers fils avec leurs réponses, badge « Nouveau », vos propres messages lus d'office.
 - **Bugs** : tous les rapports avec leur statut Nexus et leurs messages complets, suivi local (À trier → Correctif publié), notes de test et **Copier pour correctif** (rapport Markdown dans le presse-papiers).
@@ -99,9 +102,10 @@ Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus réce
 
 ### Utilisation
 
-1. Ouvrez nEXUSWATCH, cliquez sur la roue dentée et collez l'URL de la page de votre mod.
-2. Choisissez l'intervalle de vérification et activez les notifications.
-3. Lisez les nouveaux posts et bugs dans leurs onglets ; **Répondre sur Nexus** ouvre la bonne page.
+1. Ouvrez nEXUSWATCH, cliquez sur **+** dans la barre latérale et collez l'URL de la page d'un mod ; recommencez pour chaque mod.
+2. Cliquez sur la roue dentée pour choisir l'intervalle de vérification et activer les notifications.
+3. Clic droit sur un mod de la barre latérale pour le retirer.
+4. Lisez les nouveaux posts et bugs dans leurs onglets ; **Répondre sur Nexus** ouvre la bonne page.
 
 ### Questions fréquentes
 
@@ -114,7 +118,7 @@ Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont l
 
 ### Compiler depuis les sources
 
-Nécessite Python 3.12 avec PyQt6 et PyInstaller. Depuis le dossier du dépôt :
+Nécessite les Xcode Command Line Tools (Swift 5.9 ou plus récent). Depuis le dossier du dépôt :
 
 ```bash
 ./build_app.sh
