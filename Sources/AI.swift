@@ -122,6 +122,22 @@ enum AIDigest {
         return s
     }
 
+    /// Plusieurs bugs à auditer : le contexte (autres bugs, posts) n'est donné qu'une fois.
+    static func bugsData(_ bugs: [Bug], in m: ModState, totalOpen: Int) -> String {
+        var s = "# \(m.displayName)\n\n\(m.config.pageURL.absoluteString)?tab=bugs\n"
+        s += "\n## Bugs to audit (\(bugs.count) most recent of \(totalOpen) open)\n"
+        for b in bugs { s += bugSection(b, m) }
+        let others = m.bugs.filter { o in !bugs.contains { $0.id == o.id } }.sorted { $0.lastPost > $1.lastPost }
+        if !others.isEmpty {
+            s += "\n## Other bug reports (titles only, for duplicates)\n\n"
+            s += others.prefix(150).map { "- \($0.title) — \($0.status)" }.joined(separator: "\n") + "\n"
+            if others.count > 150 { s += "- … and \(others.count - 150) older reports\n" }
+        }
+        s += postsSection(m)
+        if let v = m.stats?.version { s += "\nCurrent mod version: \(v)\n" }
+        return s
+    }
+
     static func markdown(_ m: ModState) -> String {
         func delta(_ k: KeyPath<Snapshot, Int>) -> String { m.delta(k).map { " (\($0 >= 0 ? "+" : "")\($0) in 24 h)" } ?? "" }
 
@@ -262,7 +278,8 @@ enum MCPServer {
             "mod": ["type": "string",
                     "description": "Mod: id such as 'skyrimspecialedition/196272', numeric mod id or part of its name. All mods if omitted."],
             "bug": ["type": "string", "description": "Part of a bug title. All open bugs if omitted."],
-            "include_closed": ["type": "boolean", "description": "Also include fixed or closed bugs when no bug is named."]]]],
+            "include_closed": ["type": "boolean", "description": "Also include fixed or closed bugs when no bug is named."],
+            "limit": ["type": "integer", "description": "Maximum number of bugs per mod, most recent first (default 30)."]]]],
     ]
 
     static func run() {
@@ -309,9 +326,14 @@ enum MCPServer {
             }
             let title = (args["bug"] as? String ?? "").trimmingCharacters(in: .whitespaces).lowercased()
             let closed = args["include_closed"] as? Bool ?? false
-            let parts = picked.flatMap { m in
-                m.bugs.filter { b in title.isEmpty ? closed || !Store.isClosed(b) : b.title.lowercased().contains(title) }
-                    .map { AIDigest.bugData($0, in: m) }
+            let limit = max(1, args["limit"] as? Int ?? 30)
+            let parts: [String] = picked.compactMap { m in
+                let open = m.bugs.filter { closed || !Store.isClosed($0) }
+                let bugs = (title.isEmpty ? open : m.bugs.filter { $0.title.lowercased().contains(title) })
+                    .sorted { $0.lastPost > $1.lastPost }.prefix(limit)
+                if bugs.isEmpty { return nil }
+                return bugs.count == 1 ? AIDigest.bugData(bugs[bugs.startIndex], in: m)
+                    : AIDigest.bugsData(Array(bugs), in: m, totalOpen: open.count)
             }
             if parts.isEmpty { return (title.isEmpty ? "No open bug report on these mods." : "No bug title matches '\(title)'.", false) }
             return (AIDigest.bugInstructions + "\nAudit each bug below separately.\n\n---\n\n" + parts.joined(separator: "\n\n---\n\n"), false)
