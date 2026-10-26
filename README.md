@@ -27,6 +27,14 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
 
+### What's new in 1.1.1
+
+- Requests to the Nexus API now send Application-Name and Application-Version, as the API policy requires.
+
+### Updates
+
+From version 1.1.1 the app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
+
 ### Screenshots
 
 ![Several mods in the sidebar; posts sorted by Jev into bug reports and feature requests](docs/screenshots/01_posts.png)
@@ -113,6 +121,14 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
+
+### Nouveautés de la 1.1.1
+
+- Les requêtes vers l'API Nexus envoient maintenant Application-Name et Application-Version, comme l'exige la politique de l'API.
+
+### Mises à jour
+
+À partir de la version 1.1.1, l'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose d'ouvrir la page Nexus, de rappeler plus tard ou d'ignorer cette version. Rien n'est téléchargé ni installé automatiquement. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
 
 ### Captures d'écran
 
