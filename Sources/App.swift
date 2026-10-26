@@ -35,7 +35,10 @@ struct NexusWatchApp: App {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ notification: Notification) { Socle.apply() }
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        Socle.apply()
+        UpdateCheck.start(repo: "nEXUSWATCH", lang: L.lang)  // nouvelle version ? (au plus une fois par jour)
+    }
     // La fenêtre fermée, l'appli continue de vérifier en arrière-plan (badge du Dock et notifications).
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 }
