@@ -19,6 +19,7 @@ struct NexusWatchApp: App {
         Window("nEXUSWATCH", id: "main") {
             RootView()
                 .environmentObject(store)
+                .splashGated()
                 .frame(minWidth: 1180, minHeight: 640)
                 .task { await store.refreshAll() }
         }
@@ -35,6 +36,14 @@ struct NexusWatchApp: App {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    // Le splash part avant que SwiftUI ouvre la fenêtre principale, pour pouvoir la retenir jusqu'à t = 2 s.
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        Splash.shared.start(Splash.Config(
+            title: "nEXUSWATCH", subtitle: L.t("splash.subtitle"), footer: version.isEmpty ? "" : "v" + version,
+            accent: (Color(red: 0.490, green: 0.827, blue: 0.988), Color(red: 0.055, green: 0.647, blue: 0.914))))
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         Socle.apply()
         UpdateCheck.start(repo: "nEXUSWATCH", lang: L.lang)  // nouvelle version ? (au plus une fois par jour)

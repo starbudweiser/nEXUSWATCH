@@ -29,6 +29,7 @@ enum L {
 
     private static let fr: [String: String] = [
         "app.subtitle": "Surveillance de votre mod Nexus",
+        "splash.subtitle": "Veille de mods Nexus",
         "action.refresh": "ACTUALISER",
         "action.open": "Ouvrir la page",
         "action.readall": "Tout marquer comme lu",
@@ -206,6 +207,7 @@ enum L {
 
     private static let en: [String: String] = [
         "app.subtitle": "Nexus mod monitor",
+        "splash.subtitle": "Nexus mod watch",
         "action.refresh": "REFRESH",
         "action.open": "Open page",
         "action.readall": "Mark all as read",
@@ -383,6 +385,7 @@ enum L {
 
     private static let it: [String: String] = [
         "app.subtitle": "Monitoraggio del tuo mod Nexus",
+        "splash.subtitle": "Vedetta mod Nexus",
         "action.refresh": "AGGIORNA",
         "action.open": "Apri la pagina",
         "action.readall": "Segna tutto come letto",
@@ -560,6 +563,7 @@ enum L {
 
     private static let es: [String: String] = [
         "app.subtitle": "Seguimiento de tu mod de Nexus",
+        "splash.subtitle": "Vigía de mods Nexus",
         "action.refresh": "ACTUALIZAR",
         "action.open": "Abrir la página",
         "action.readall": "Marcar todo como leído",

@@ -154,6 +154,8 @@ enum Socle {
         static let sizeChoice: CGFloat = 16
         static let sizeScrollbar: CGFloat = 8
         static let sizeSidebarMin: CGFloat = 200
+        static let sizeSplashWidth: CGFloat = 500
+        static let sizeSplashHeight: CGFloat = 190
         static let opacityDisabled: CGFloat = 0.4
     }
 
