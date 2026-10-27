@@ -87,8 +87,6 @@ enum Socle {
         static let onAccentFill = dynamic(dark: (1.0000, 1.0000, 1.0000, 1), light: (1.0000, 1.0000, 1.0000, 1))
         /// L'accent en texte : chemins, liens, valeurs mises en avant. ≥ 5,4:1 sur tous les fonds.
         static let accentText = dynamic(dark: (0.2196, 0.7412, 0.9725, 1), light: (0.0118, 0.4118, 0.6314, 1))
-        /// Fond opaque des badges d'accent (texte info-soft) et de la zone de dépôt survolée.
-        static let accentTint = dynamic(dark: (0.0471, 0.2275, 0.3216, 1), light: (0.8784, 0.9490, 0.9961, 1))
         /// L'appel principal d'un écran — un seul par écran (Ouvrir, Importer, Créer). Libellé on-action.
         static let action = dynamic(dark: (0.9843, 0.7490, 0.1412, 1), light: (0.9843, 0.7490, 0.1412, 1))
         /// Survol du bouton d'action.
@@ -386,7 +384,7 @@ struct SocleSegmented<Value: Hashable>: View {
     private func background(_ t: Tone) -> Color {
         switch t {
         case .strong: Socle.C.accentFill
-        case .soft: Socle.C.accentTint
+        case .soft: Socle.C.control
         case .neutral: Socle.C.control
         }
     }
@@ -394,13 +392,13 @@ struct SocleSegmented<Value: Hashable>: View {
     private func foreground(_ t: Tone) -> Color {
         switch t {
         case .strong: Socle.C.onAccentFill
-        case .soft: Socle.C.infoSoft
+        case .soft: Socle.C.accentText
         case .neutral: Socle.C.text
         }
     }
 }
 
-/// Étiquette de valeur Socle (commune, mot-clé) : `accent-tint`, texte `info-soft`, croix pour retirer.
+/// Étiquette de valeur Socle (commune, mot-clé) : fond `control`, texte `accent-text`, croix pour retirer.
 struct SocleChip: View {
     let text: String
     var onRemove: (() -> Void)?
@@ -412,9 +410,9 @@ struct SocleChip: View {
                 Button(action: onRemove) { Image(systemName: "xmark").font(.system(size: 9, weight: .bold)) }.buttonStyle(.plain)
             }
         }
-        .foregroundStyle(Socle.C.infoSoft)
+        .foregroundStyle(Socle.C.accentText)
         .padding(.horizontal, Socle.M.space2).padding(.vertical, 3)
-        .background(Socle.C.accentTint, in: Capsule())
+        .background(Socle.C.control, in: Capsule())
     }
 }
 

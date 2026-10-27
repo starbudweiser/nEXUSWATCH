@@ -366,7 +366,7 @@ struct Badge: View {
     private var bg: Color {
         switch kind {
         case .neutral: Socle.C.control
-        case .accent, .info: Socle.C.accentTint
+        case .accent, .info: Socle.C.control
         case .success: Socle.C.successBg
         case .warning: Socle.C.warningBg
         case .danger: Socle.C.dangerBg
