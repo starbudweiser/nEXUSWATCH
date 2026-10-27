@@ -63,12 +63,17 @@ final class Splash {
         let host = NSHostingView(rootView: SplashView(config: config, model: model))
         host.frame = NSRect(origin: .zero, size: Self.size)
         p.contentView = host
-        p.center()
+        // centre exact de l'écran principal (NSWindow.center() place la fenêtre au tiers supérieur)
+        if let sf = (NSScreen.main ?? NSScreen.screens.first)?.frame {
+            p.setFrameOrigin(NSPoint(x: (sf.midX - Self.size.width / 2).rounded(), y: (sf.midY - Self.size.height / 2).rounded()))
+        }
         p.orderFrontRegardless()
         panel = p
         shownAt = Date()
         model.appeared = true
-        trace("splash visible")
+        if let sf = (NSScreen.main ?? NSScreen.screens.first)?.frame {
+            trace(String(format: "splash visible, écart au centre de l'écran : %.0f/%.0f px", p.frame.midX - sf.midX, p.frame.midY - sf.midY))
+        }
         // fenêtre déjà créée (splash lancé tard) : retenue elle aussi
         for w in NSApp.windows where w !== p && w.canBecomeMain { gate(w) }
 
@@ -168,9 +173,9 @@ private struct SplashView: View {
             cardView
         }
         .frame(width: Splash.size.width, height: Splash.size.height)
-        // sortie : zoom arrière avec rebond (easeInBack), fondu sur la fin
+        // sortie : zoom arrière avec léger rebond ; la carte ne dépasse jamais 104 % (≈ 491 px < 500 px de fenêtre)
         .scaleEffect(model.leaving && !model.reduceMotion ? 0.05 : 1)
-        .animation(model.reduceMotion ? nil : Self.curve(0.6, -0.28, 0.735, 0.045, 0.6), value: model.leaving)
+        .animation(model.reduceMotion ? nil : Self.curve(0.6, -0.12, 0.735, 0.045, 0.6), value: model.leaving)
         .opacity(model.leaving ? 0 : 1)
         .animation(model.reduceMotion ? nil : .easeIn(duration: 0.18).delay(0.42), value: model.leaving)
     }
@@ -195,8 +200,7 @@ private struct SplashView: View {
             }
         }
         .frame(width: card.width, height: card.height)
-        .background(Color(red: 0.106, green: 0.110, blue: 0.129))
-        .clipShape(shape)
+        .background(shape.fill(Color(red: 0.106, green: 0.110, blue: 0.129)))
         .overlay(shape.strokeBorder(Color.white.opacity(0.08), lineWidth: 1))
     }
 
