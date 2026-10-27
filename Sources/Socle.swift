@@ -8,6 +8,7 @@
 //     Text("Titre").socle(.heading)                   // style typographique (× Socle.scale)
 //     .foregroundStyle(Socle.C.textStrong)            // couleurs : Socle.C.*, mesures : Socle.M.*
 //     Button("FUSIONNER") {}.buttonStyle(SocleButtonStyle(.primary))
+//     Socle.brand("nEXUSWATCH", color: …); Text(branded: s)  // initiale du nom dans la couleur du logo
 
 import AppKit
 import SwiftUI
@@ -216,6 +217,56 @@ extension View {
     /// Applique un style typographique Socle (police système, taille × échelle, interlettrage).
     func socle(_ style: Socle.TextStyle) -> some View {
         font(style.font).tracking(style.tracking * style.pointSize)
+    }
+}
+
+/// Nom de l'appli : son initiale en minuscule (le « m » de mORTEX, le « n » de nEXUSWATCH…) prend la couleur
+/// de son logo partout où le nom est écrit. Poser `Socle.brand("nEXUSWATCH", color: …)` au démarrage, puis
+/// écrire `Text(branded: texte)` pour tout texte qui peut contenir le nom (titres, textes, dialogues).
+/// Titres de fenêtre, menus et notifications système n'acceptent pas de couleur.
+extension Socle {
+    nonisolated(unsafe) private(set) static var brandNames: [String] = []
+    nonisolated(unsafe) private(set) static var brandColor: Color = .accentColor
+
+    static func brand(_ names: String..., color: Color) {
+        brandNames = names
+        brandColor = color
+    }
+
+    /// Texte avec l'initiale minuscule de chaque occurrence du nom de l'appli colorée.
+    static func branded(_ text: String) -> AttributedString {
+        branded(AttributedString(text))
+    }
+
+    /// Même chose sur un texte déjà mis en forme (Markdown…), sans toucher à ses autres attributs.
+    static func branded(_ attributed: AttributedString) -> AttributedString {
+        var out = attributed
+        let text = String(attributed.characters)
+        for name in brandNames {
+            let head = name.prefix { $0.isLowercase }
+            guard !head.isEmpty else { continue }
+            var from = text.startIndex
+            while let r = text.range(of: name, range: from..<text.endIndex) {
+                from = r.upperBound
+                let before = r.lowerBound == text.startIndex ? nil : text[text.index(before: r.lowerBound)]
+                let after = r.upperBound == text.endIndex ? nil : text[r.upperBound]
+                // Pas dans un mot, un chemin, un identifiant ni une adresse
+                if let b = before, b.isLetter || b.isNumber || "./@-_".contains(b) { continue }
+                if let a = after, a.isLetter || a.isNumber || "-_".contains(a) { continue }
+                let lo = text.distance(from: text.startIndex, to: r.lowerBound)
+                let start = out.index(out.startIndex, offsetByCharacters: lo)
+                let end = out.index(start, offsetByCharacters: head.count)
+                out[start..<end].foregroundColor = brandColor
+            }
+        }
+        return out
+    }
+}
+
+extension Text {
+    /// Texte où l'initiale du nom de l'appli prend la couleur de son logo (voir `Socle.brand`).
+    init(branded text: String) {
+        self.init(Socle.branded(text))
     }
 }
 

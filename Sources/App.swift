@@ -39,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // Le splash part avant que SwiftUI ouvre la fenêtre principale, pour pouvoir la retenir jusqu'à t = 2 s.
     func applicationWillFinishLaunching(_ notification: Notification) {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        Socle.brand("nEXUSWATCH", color: Color(red: 0.055, green: 0.647, blue: 0.914))  // « n » dans le bleu du logo
         Splash.shared.start(Splash.Config(
             title: "nEXUSWATCH", subtitle: L.t("splash.subtitle"), footer: version.isEmpty ? "" : "v" + version,
             accent: Color(red: 0.055, green: 0.647, blue: 0.914)))
@@ -226,7 +227,7 @@ struct HeaderBar: View {
 
     var body: some View {
         HStack(spacing: Socle.M.space2) {
-            Text("nEXUSWATCH").socle(Socle.T.title).foregroundStyle(Socle.C.textStrong)
+            Text(branded: "nEXUSWATCH").socle(Socle.T.title).foregroundStyle(Socle.C.textStrong)
             Text(store.state.stats?.name ?? L.t("app.subtitle"))
                 .socle(Socle.T.body).foregroundStyle(Socle.C.textMuted).lineLimit(1)
             Spacer(minLength: Socle.M.space4)
@@ -967,7 +968,7 @@ struct MarkdownView: View {
     }
 
     static func inline(_ t: String) -> AttributedString {
-        (try? AttributedString(markdown: t, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(t)
+        Socle.branded((try? AttributedString(markdown: t, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(t))
     }
 
     private static func blocks(_ text: String) -> [Block] {
@@ -1006,7 +1007,7 @@ struct MarkdownView: View {
 struct MCPHelp: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Socle.M.space2) {
-            Text(L.t("ai.mcp.note")).socle(Socle.T.body).foregroundStyle(Socle.C.textMuted)
+            Text(branded: L.t("ai.mcp.note")).socle(Socle.T.body).foregroundStyle(Socle.C.textMuted)
                 .fixedSize(horizontal: false, vertical: true)
             Text(MCPServer.configJSON).socle(Socle.T.monoSm).foregroundStyle(Socle.C.text).textSelection(.enabled)
                 .padding(Socle.M.space2).frame(maxWidth: .infinity, alignment: .leading)
@@ -1084,7 +1085,7 @@ struct SettingsView: View {
 
     @ViewBuilder private var aiSection: some View {
         Toggle(L.t("ai.enable"), isOn: $ai.enabled).socle(Socle.T.labelStrong)
-        Text(L.t("ai.enable.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+        Text(branded: L.t("ai.enable.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
             .fixedSize(horizontal: false, vertical: true)
         if ai.enabled {
             HStack {
@@ -1121,7 +1122,7 @@ struct SettingsView: View {
                     }
                 }
                 let u = (store.data.jevUsage ?? JevUsage()).thisMonth
-                Text(L.t("jev.usage", u.requests, L.number(u.inputTokens + u.outputTokens), L.number(u.inputTokens), L.number(u.outputTokens)))
+                Text(branded: L.t("jev.usage", u.requests, L.number(u.inputTokens + u.outputTokens), L.number(u.inputTokens), L.number(u.outputTokens)))
                     .socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).monospacedDigit()
             }
         }
