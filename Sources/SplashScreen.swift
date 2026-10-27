@@ -19,8 +19,8 @@ final class Splash {
         /// Mention discrète en bas à droite (version…), facultative.
         var footer = ""
         var icon: NSImage = NSApp.applicationIconImage
-        /// Dégradé d'accent (clair → soutenu) : première lettre, filet, lueur.
-        var accent: (Color, Color) = (Color(red: 1, green: 0.757, blue: 0.353), Color(red: 1, green: 0.369, blue: 0.039))
+        /// Couleur d'accent (aplat) : premières lettres du nom et filet.
+        var accent = Color(red: 1, green: 0.369, blue: 0.039)
     }
 
     static let shared = Splash()
@@ -176,15 +176,9 @@ private struct SplashView: View {
     }
 
     private var cardView: some View {
+        // carte plate (Socle « totalement plat ») : aplat et filet de 1 px, sans ombre, halo, flou ni dégradé
         let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
         return ZStack(alignment: .bottomTrailing) {
-            // lueur d'accent derrière l'icône
-            RadialGradient(colors: [config.accent.1.opacity(0.22), .clear], center: .center, startRadius: 0, endRadius: 120)
-                .frame(width: 240, height: 240)
-                .position(x: 80, y: card.height / 2)
-                .opacity(on ? 1 : 0)
-                .animation(anim(.easeOut(duration: 1.4), 0.3), value: on)
-
             HStack(spacing: 26) {
                 icon
                 text
@@ -198,52 +192,32 @@ private struct SplashView: View {
                     .font(.system(size: 9.5, weight: .medium)).tracking(0.6)
                     .foregroundStyle(Color(white: 0.667))
                     .padding(.trailing, 18).padding(.bottom, 10)
-                    .opacity(on ? 1 : 0)
-                    .animation(anim(.easeOut(duration: 0.6), 1.5), value: on)
             }
-
-            Sheen(run: !model.reduceMotion).allowsHitTesting(false)
         }
         .frame(width: card.width, height: card.height)
-        .background(LinearGradient(stops: [.init(color: Color(red: 0.204, green: 0.212, blue: 0.239), location: 0),
-                                           .init(color: Color(red: 0.106, green: 0.110, blue: 0.129), location: 0.55),
-                                           .init(color: Color(red: 0.071, green: 0.075, blue: 0.090), location: 1)],
-                                   startPoint: UnitPoint(x: 0.33, y: 0), endPoint: UnitPoint(x: 0.67, y: 1)))
+        .background(Color(red: 0.106, green: 0.110, blue: 0.129))
         .clipShape(shape)
         .overlay(shape.strokeBorder(Color.white.opacity(0.08), lineWidth: 1))
-        .shadow(color: .black.opacity(0.45), radius: 12, y: 10)
-        // entrée de la carte en 3D
-        .opacity(on ? 1 : 0)
-        .rotation3DEffect(.degrees(on ? 0 : 28), axis: (1, 0, 0), perspective: 0.5)
-        .rotation3DEffect(.degrees(on ? 0 : -14), axis: (0, 1, 0), perspective: 0.5)
-        .scaleEffect(on ? 1 : 0.92)
-        .animation(anim(Self.curve(0.16, 1, 0.3, 1, 0.9), 0), value: on)
     }
 
-    /// Icône de l'appli : arrivée en tourbillon, puis légère pulsation.
+    /// Icône de l'appli : arrivée en tourbillon.
     private var icon: some View {
-        TimelineView(.animation(paused: model.reduceMotion)) { ctx in
-            let t = ctx.date.timeIntervalSinceReferenceDate
-            let beat = model.reduceMotion ? 1 : 1 + 0.025 * sin(t * 2 * .pi / 1.6)
-            Image(nsImage: config.icon)
-                .resizable().interpolation(.high)
-                .frame(width: 108, height: 108)
-                .scaleEffect(beat)
-        }
-        .shadow(color: config.accent.1.opacity(0.45), radius: 6)
-        .rotationEffect(.degrees(on ? 0 : -420))
-        .scaleEffect(on ? 1 : 0.2)
-        .opacity(on ? 1 : 0)
-        .animation(anim(Self.curve(0.22, 1, 0.36, 1, 1.3), 0), value: on)
+        Image(nsImage: config.icon)
+            .resizable().interpolation(.high)
+            .frame(width: 108, height: 108)
+            .rotationEffect(.degrees(on ? 0 : -420))
+            .scaleEffect(on ? 1 : 0.2)
+            .opacity(on ? 1 : 0)
+            .animation(anim(Self.curve(0.22, 1, 0.36, 1, 1.3), 0), value: on)
     }
 
     private var text: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
                 ForEach(Array(config.title.enumerated()), id: \.offset) { i, ch in
-                    letter(String(ch), accent: i < config.accentLetters)
+                    Text(String(ch)).font(.system(size: Self.titleSize, weight: .heavy)).tracking(0.5)
+                        .foregroundStyle(i < config.accentLetters ? config.accent : .white)
                         .opacity(on ? 1 : 0)
-                        .blur(radius: on ? 0 : 3)
                         .offset(y: on ? 0 : 14)
                         .rotation3DEffect(.degrees(on ? 0 : -95), axis: (1, 0, 0), anchor: UnitPoint(x: 0.5, y: 0.85), perspective: 0.6)
                         .animation(anim(Self.curve(0.2, 1.2, 0.4, 1, 0.7), 0.45 + Double(i) * 0.07), value: on)
@@ -253,11 +227,8 @@ private struct SplashView: View {
             .accessibilityLabel(config.title)
             .lineLimit(1)
 
-            RoundedRectangle(cornerRadius: 1)
-                .fill(LinearGradient(stops: [.init(color: config.accent.0, location: 0),
-                                             .init(color: config.accent.1, location: 0.6),
-                                             .init(color: .clear, location: 1)],
-                                     startPoint: .leading, endPoint: .trailing))
+            Rectangle()
+                .fill(config.accent)
                 .frame(height: 2)
                 .scaleEffect(x: on ? 1 : 0, anchor: .leading)
                 .animation(anim(Self.curve(0.65, 0, 0.35, 1, 0.7), 0.95), value: on)
@@ -268,7 +239,6 @@ private struct SplashView: View {
                 .foregroundStyle(Color(white: 0.847))
                 .lineLimit(1)
                 .opacity(on ? 1 : 0)
-                .blur(radius: on ? 0 : 4)
                 .scaleEffect(x: on ? 1 : 1.25, anchor: .leading)
                 .animation(anim(Self.curve(0.16, 1, 0.3, 1, 0.9), 1.1), value: on)
         }
@@ -280,48 +250,15 @@ private struct SplashView: View {
     /// Largeur utile du texte : carte − 2 marges − icône − écart.
     private var textWidth: CGFloat { card.width - 2 * pad - 108 - 26 }
 
-    /// Taille la plus grande (≤ `max`) pour que `s` tienne sur une ligne dans la largeur utile.
-    private func fit(_ s: String, max: CGFloat, weight: NSFont.Weight, tracking: CGFloat) -> CGFloat {
-        // lettre par lettre, comme le titre est dessiné (sans crénage entre les lettres)
-        let font = NSFont.systemFont(ofSize: max, weight: weight)
-        let w = s.reduce(0) { $0 + (String($1) as NSString).size(withAttributes: [.font: font]).width } + tracking * CGFloat(s.count)
-        return w <= textWidth ? max : floor(max * textWidth / w * 10) / 10
-    }
-    /// Titre : 50 pt comme mORTEX, réduit pour qu'un nom long ne touche jamais le bord droit.
-    private var titleSize: CGFloat { fit(config.title, max: 50, weight: .heavy, tracking: 0.5) }
-    private var subtitleSize: CGFloat { fit(config.subtitle.uppercased(), max: 15, weight: .semibold, tracking: 4) }
+    /// Nom de l'appli : taille fixe, identique dans toutes les applis (Socle size-splash-title, 40 px, graisse 800,
+    /// interlettrage 0,5 px), prévue pour que le plus long nom tienne sans toucher le bord droit.
+    private static let titleSize: CGFloat = 40
 
-    @ViewBuilder private func letter(_ s: String, accent: Bool) -> some View {
-        let t = Text(s).font(.system(size: titleSize, weight: .heavy)).tracking(0.5)
-        if accent {
-            t.foregroundStyle(LinearGradient(colors: [config.accent.0, config.accent.1],
-                                             startPoint: .topLeading, endPoint: .bottomTrailing))
-        } else {
-            t.foregroundStyle(.white)
-        }
-    }
-}
-
-/// Reflet qui balaie la carte une fois.
-private struct Sheen: View {
-    let run: Bool
-    @State private var x: CGFloat = -0.6
-
-    var body: some View {
-        GeometryReader { g in
-            LinearGradient(stops: [.init(color: .clear, location: 0),
-                                   .init(color: .white.opacity(0.10), location: 0.45),
-                                   .init(color: .white.opacity(0.18), location: 0.5),
-                                   .init(color: .white.opacity(0.10), location: 0.55),
-                                   .init(color: .clear, location: 1)],
-                           startPoint: .leading, endPoint: .trailing)
-                .frame(width: g.size.width * 0.4, height: g.size.height * 2)
-                .rotationEffect(.degrees(8))
-                .offset(x: g.size.width * x, y: -g.size.height * 0.5)
-        }
-        .onAppear {
-            guard run else { return }
-            withAnimation(.easeInOut(duration: 1.1).delay(1.35)) { x = 1.4 }
-        }
+    /// Sous-titre : 15 pt, réduit seulement s'il ne tient pas sur une ligne dans la largeur utile.
+    private var subtitleSize: CGFloat {
+        let s = config.subtitle.uppercased(), tracking: CGFloat = 4
+        let w = (s as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: 15, weight: .semibold)]).width
+            + tracking * CGFloat(s.count)
+        return w <= textWidth ? 15 : floor(15 * textWidth / w * 10) / 10
     }
 }

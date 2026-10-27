@@ -41,7 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         Splash.shared.start(Splash.Config(
             title: "nEXUSWATCH", subtitle: L.t("splash.subtitle"), footer: version.isEmpty ? "" : "v" + version,
-            accent: (Color(red: 0.490, green: 0.827, blue: 0.988), Color(red: 0.055, green: 0.647, blue: 0.914))))
+            accent: Color(red: 0.055, green: 0.647, blue: 0.914)))
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
