@@ -189,8 +189,9 @@ private struct SplashView: View {
                 icon
                 text
             }
-            .padding(.leading, 34).padding(.trailing, 30)
-            .frame(width: card.width, height: card.height, alignment: .leading)
+            // marge identique à gauche et à droite (Socle space-6), contenu centré
+            .padding(.horizontal, pad)
+            .frame(width: card.width, height: card.height)
 
             if !config.footer.isEmpty {
                 Text(config.footer.uppercased())
@@ -263,19 +264,32 @@ private struct SplashView: View {
                 .padding(.top, 10).padding(.bottom, 9)
 
             Text(config.subtitle.uppercased())
-                .font(.system(size: 15, weight: .semibold)).tracking(4)
+                .font(.system(size: subtitleSize, weight: .semibold)).tracking(4 * subtitleSize / 15)
                 .foregroundStyle(Color(white: 0.847))
-                .lineLimit(1).minimumScaleFactor(0.6)
+                .lineLimit(1)
                 .opacity(on ? 1 : 0)
                 .blur(radius: on ? 0 : 4)
                 .scaleEffect(x: on ? 1 : 1.25, anchor: .leading)
                 .animation(anim(Self.curve(0.16, 1, 0.3, 1, 0.9), 1.1), value: on)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .fixedSize()
     }
 
-    /// Taille du titre : 50 pt comme mORTEX, réduite pour les noms longs afin de tenir dans la carte.
-    private var titleSize: CGFloat { config.title.count <= 6 ? 50 : max(28, 50 * 6.4 / CGFloat(config.title.count)) }
+    /// Marge intérieure de la carte, identique des deux côtés (Socle space-6).
+    private let pad: CGFloat = 24
+    /// Largeur utile du texte : carte − 2 marges − icône − écart.
+    private var textWidth: CGFloat { card.width - 2 * pad - 108 - 26 }
+
+    /// Taille la plus grande (≤ `max`) pour que `s` tienne sur une ligne dans la largeur utile.
+    private func fit(_ s: String, max: CGFloat, weight: NSFont.Weight, tracking: CGFloat) -> CGFloat {
+        // lettre par lettre, comme le titre est dessiné (sans crénage entre les lettres)
+        let font = NSFont.systemFont(ofSize: max, weight: weight)
+        let w = s.reduce(0) { $0 + (String($1) as NSString).size(withAttributes: [.font: font]).width } + tracking * CGFloat(s.count)
+        return w <= textWidth ? max : floor(max * textWidth / w * 10) / 10
+    }
+    /// Titre : 50 pt comme mORTEX, réduit pour qu'un nom long ne touche jamais le bord droit.
+    private var titleSize: CGFloat { fit(config.title, max: 50, weight: .heavy, tracking: 0.5) }
+    private var subtitleSize: CGFloat { fit(config.subtitle.uppercased(), max: 15, weight: .semibold, tracking: 4) }
 
     @ViewBuilder private func letter(_ s: String, accent: Bool) -> some View {
         let t = Text(s).font(.system(size: titleSize, weight: .heavy)).tracking(0.5)
