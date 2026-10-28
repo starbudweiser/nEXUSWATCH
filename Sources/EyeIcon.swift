@@ -43,12 +43,14 @@ private struct EyeIconShape: View, Animatable {
             eye.move(to: l)
             eye.addCurve(to: r, control1: CGPoint(x: 390, y: up), control2: CGPoint(x: 634, y: up))
             eye.addCurve(to: l, control1: CGPoint(x: 634, y: 760), control2: CGPoint(x: 390, y: 760))
+            // tracé fermé : pointe gauche en jointure arrondie, comme la droite (sinon deux bouts plats s'y croisent)
+            eye.closeSubpath()
             var inner = ctx
             inner.clip(to: eye)
             inner.draw(Text("N").font(.system(size: 230, weight: .heavy)).foregroundColor(Color(white: 0.96)),
                        at: CGPoint(x: 512, y: 508))
             ctx.stroke(eye, with: .color(Color(red: 0x0e / 255, green: 0xa5 / 255, blue: 0xe9 / 255)),
-                       style: StrokeStyle(lineWidth: 44, lineJoin: .round))
+                       style: StrokeStyle(lineWidth: 44, lineCap: .round, lineJoin: .round))
             ctx.fill(Path(ellipseIn: CGRect(x: 700, y: 184, width: 140, height: 140)),
                      with: .color(Color(red: 0.98, green: 0.75, blue: 0.14)))
         }
