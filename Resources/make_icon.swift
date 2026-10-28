@@ -13,6 +13,7 @@ let l = NSPoint(x: 230, y: 512), r = NSPoint(x: 794, y: 512)
 eye.move(to: l)
 eye.curve(to: r, controlPoint1: NSPoint(x: 390, y: 760), controlPoint2: NSPoint(x: 634, y: 760))
 eye.curve(to: l, controlPoint1: NSPoint(x: 634, y: 264), controlPoint2: NSPoint(x: 390, y: 264))
+eye.close() // pointe gauche en jointure arrondie, comme la droite
 eye.lineWidth = 44; eye.lineJoinStyle = .round; accent.setStroke(); eye.stroke()
 let font = NSFont.systemFont(ofSize: 230, weight: .heavy)
 let s = NSAttributedString(string: "N", attributes: [.font: font, .foregroundColor: NSColor(white: 0.96, alpha: 1)])
