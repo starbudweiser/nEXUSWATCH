@@ -760,22 +760,23 @@ struct BugAuditBox: View {
 
 struct FilesView: View {
     @EnvironmentObject var store: Store
+    @State private var sortOrder = [KeyPathComparator(\ModFileStat.total, order: .reverse)]
 
     var body: some View {
         let files = store.state.stats?.files ?? []
         if files.isEmpty { EmptyState(text: L.t("files.empty")) }
         else {
-            Table(files.sorted { $0.total > $1.total }) {
-                TableColumn(L.t("files.name")) { f in
+            Table(files.sorted(using: sortOrder), sortOrder: $sortOrder) {
+                TableColumn(L.t("files.name"), value: \.name, comparator: .localizedStandard) { f in
                     VStack(alignment: .leading, spacing: 2) {
                         Text(f.name).socle(Socle.T.label).foregroundStyle(Socle.C.textStrong)
                         Text("\(f.category) · \(L.date(f.date))").socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
                     }
                 }
-                TableColumn(L.t("files.version")) { f in Text(f.version).socle(Socle.T.mono) }.width(80)
-                TableColumn(L.t("files.total")) { f in Text(L.number(f.total)).socle(Socle.T.mono).monospacedDigit() }.width(80)
-                TableColumn(L.t("files.unique")) { f in Text(L.number(f.unique)).socle(Socle.T.mono).monospacedDigit() }.width(80)
-                TableColumn(L.t("files.scan")) { f in
+                TableColumn(L.t("files.version"), value: \.version, comparator: .localizedStandard) { f in Text(f.version).socle(Socle.T.mono) }.width(80)
+                TableColumn(L.t("files.total"), value: \.total) { f in Text(L.number(f.total)).socle(Socle.T.mono).monospacedDigit() }.width(80)
+                TableColumn(L.t("files.unique"), value: \.unique) { f in Text(L.number(f.unique)).socle(Socle.T.mono).monospacedDigit() }.width(80)
+                TableColumn(L.t("files.scan"), value: \.scan) { f in
                     if f.scan == "QUARANTINED" { Badge(text: L.t("scan.QUARANTINED"), kind: .danger) }
                     else if f.scan.isEmpty { Text("—") }
                     else { Badge(text: ["CLEAN", "SAFE", "PASSED", "SCANNED"].contains(f.scan) ? L.t("scan.ok") : f.scan.capitalized,
