@@ -42,6 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Socle.brand("nEXUSWATCH", color: Color(red: 0.055, green: 0.647, blue: 0.914))  // « n » dans le bleu du logo
         Splash.shared.start(Splash.Config(
             title: "nEXUSWATCH", subtitle: L.t("splash.subtitle"), footer: version.isEmpty ? "" : "v" + version,
+            iconView: AnyView(BlinkingEyeIcon()),
             accent: Color(red: 0.055, green: 0.647, blue: 0.914)))
     }
 
@@ -770,9 +771,10 @@ struct FilesView: View {
                 TableColumn(L.t("files.name"), value: \.name, comparator: .localizedStandard) { f in
                     VStack(alignment: .leading, spacing: 2) {
                         Text(f.name).socle(Socle.T.label).foregroundStyle(Socle.C.textStrong)
-                        Text("\(f.category) · \(L.date(f.date))").socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                        Text(f.category).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
                     }
                 }
+                TableColumn(L.t("files.date"), value: \.date) { f in Text(L.date(f.date)).socle(Socle.T.meta) }.width(140)
                 TableColumn(L.t("files.version"), value: \.version, comparator: .localizedStandard) { f in Text(f.version).socle(Socle.T.mono) }.width(80)
                 TableColumn(L.t("files.total"), value: \.total) { f in Text(L.number(f.total)).socle(Socle.T.mono).monospacedDigit() }.width(80)
                 TableColumn(L.t("files.unique"), value: \.unique) { f in Text(L.number(f.unique)).socle(Socle.T.mono).monospacedDigit() }.width(80)

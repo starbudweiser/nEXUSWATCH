@@ -19,6 +19,8 @@ final class Splash {
         /// Mention discrète en bas à droite (version…), facultative.
         var footer = ""
         var icon: NSImage = NSApp.applicationIconImage
+        /// Icône animée qui remplace `icon` (même cadre, même arrivée en tourbillon), facultative.
+        var iconView: AnyView? = nil
         /// Couleur d'accent (aplat) : premières lettres du nom et filet.
         var accent = Color(red: 1, green: 0.369, blue: 0.039)
     }
@@ -206,8 +208,10 @@ private struct SplashView: View {
 
     /// Icône de l'appli : arrivée en tourbillon.
     private var icon: some View {
-        Image(nsImage: config.icon)
-            .resizable().interpolation(.high)
+        Group {
+            if let v = config.iconView { v }
+            else { Image(nsImage: config.icon).resizable().interpolation(.high) }
+        }
             .frame(width: 108, height: 108)
             .rotationEffect(.degrees(on ? 0 : -420))
             .scaleEffect(on ? 1 : 0.2)
