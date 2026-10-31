@@ -290,10 +290,12 @@ struct StatTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Socle.M.space1) {
             Text(label.uppercased()).socle(Socle.T.eyebrow).foregroundStyle(Socle.C.textSubtle)
+                .lineLimit(1).truncationMode(.tail).help(label)
             Text(value ?? "—").socle(Socle.T.stat).foregroundStyle(Socle.C.textStrong).monospacedDigit()
+                .lineLimit(1).truncationMode(.tail)
             if let delta, delta != 0 {
                 Text(L.t("stat.delta", (delta > 0 ? "+" : "") + L.number(delta)))
-                    .socle(Socle.T.meta).foregroundStyle(delta > 0 ? Socle.C.success : Socle.C.danger)
+                    .socle(Socle.T.meta).foregroundStyle(delta > 0 ? Socle.C.success : Socle.C.danger).lineLimit(1)
             } else if let note {
                 Text(note).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText).lineLimit(1)
             } else {

@@ -48,7 +48,7 @@ final class Store: ObservableObject {
         var c = ModConfig()
         if let current = hasMods ? config : nil { c.domain = current.domain }
         guard c.parse(input) else { return L.t("settings.mod.invalid") }
-        guard !data.mods.contains(where: { $0.id == c.id }) else { return L.t("mods.duplicate") }
+        if let known = data.mods.first(where: { $0.id == c.id }) { return L.t("mods.duplicate", known.displayName) }
         data.mods.append(ModState(config: c))
         data.selected = c.id
         save()
