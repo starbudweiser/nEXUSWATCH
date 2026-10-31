@@ -31,6 +31,9 @@ Publishing a mod means checking its page again and again for new comments, bug r
 
 - Signed with a Developer ID and notarized by Apple: macOS now opens the app without a security warning.
 - Version number aligned across the Skyrim Mac Toolkit.
+- Stats cards stay on one line: long labels end with « … » instead of wrapping.
+- The "already watched" message names the mod concerned.
+- A mod that is not published yet gets its own message instead of a connection error.
 
 ### Updates
 
@@ -125,6 +128,9 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 
 - Signée avec un certificat Developer ID et notarisée par Apple : macOS ouvre désormais l'appli sans avertissement de sécurité.
 - Numéro de version commun à tout le Skyrim Mac Toolkit.
+- Cards de stats sur une ligne : les libellés trop longs se terminent par « … » au lieu de passer à la ligne.
+- Le message « déjà suivi » nomme le mod concerné.
+- Un mod pas encore publié a son propre message au lieu d'une erreur de connexion.
 
 ### Mises à jour
 
