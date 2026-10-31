@@ -5,10 +5,11 @@ import Foundation
 import WebKit
 
 enum FetchError: LocalizedError {
-    case timeout, notFound, api(String), script(String)
+    case timeout, unpublished, notFound, api(String), script(String)
     var errorDescription: String? {
         switch self {
         case .timeout: L.t("err.timeout")
+        case .unpublished: L.t("err.unpublished")
         case .notFound: L.t("err.notfound")
         case .api(let m): L.t("err.api") + " " + m
         case .script(let m): L.t("err.script") + " " + m
@@ -104,6 +105,9 @@ final class NexusFetcher: NSObject, WKNavigationDelegate {
         for _ in 0..<50 {
             let r = try? await webView.evaluateJavaScript("!!document.querySelector('#mod-page-tab-description, .stats')")
             if r as? Bool == true { ready = true; break }
+            // Mod non publié : la page reste accessible mais n'a aucun onglet à lire.
+            let hidden = try? await webView.evaluateJavaScript("[...document.querySelectorAll('h1, h2, h3')].some(e => e.textContent.trim() === 'Not published')")
+            if hidden as? Bool == true { throw FetchError.unpublished }
             try await Task.sleep(nanoseconds: 500_000_000)
         }
         guard ready else { throw FetchError.timeout }
