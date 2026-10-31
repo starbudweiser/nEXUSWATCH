@@ -2,21 +2,17 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
-## 1.1.2
+## 1.3.0
 
 **English**
 
-- Animated splash screen at launch: the icon spins in, its eye blinks twice and the name appears letter by letter. With "Reduce motion" on, the splash stays still.
-- Files tab: click any column header to sort (name, version, downloads, uniques, Nexus check); new sortable "Added" column with the upload date.
-- The "n" of nEXUSWATCH now uses the blue of the logo everywhere in the interface.
-- Icon: the left corner of the eye is now rounded like the right one.
+- Signed with a Developer ID and notarized by Apple: macOS now opens the app without a security warning.
+- Version number aligned across the Skyrim Mac Toolkit.
 
 **Français**
 
-- Écran de lancement animé : l'icône arrive en tourbillon, son œil cligne deux fois et le nom s'écrit lettre par lettre. Avec « Réduire les animations », le splash reste fixe.
-- Onglet Fichiers : un clic sur l'en-tête d'une colonne trie le tableau (nom, version, téléchargements, uniques, contrôle Nexus) ; nouvelle colonne « Ajouté le », triable, avec la date d'envoi.
-- Le « n » de nEXUSWATCH prend le bleu du logo partout dans l'interface.
-- Icône : la pointe gauche de l'œil est maintenant arrondie comme la droite.
+- Signée avec un certificat Developer ID et notarisée par Apple : macOS ouvre désormais l'appli sans avertissement de sécurité.
+- Numéro de version commun à tout le Skyrim Mac Toolkit.
 
 <!-- gen_changelogs : entrées ci-dessous conservées -->
 

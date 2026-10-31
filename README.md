@@ -27,15 +27,14 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
 
-### What's new in 1.1.2
+### What's new in 1.3.0
 
-- Animated splash screen at launch: the icon spins in, its eye blinks twice and the name appears letter by letter. With "Reduce motion" on, the splash stays still.
-- Files tab: click any column header to sort (name, version, downloads, uniques, Nexus check); new sortable "Added" column with the upload date.
-- The "n" of nEXUSWATCH now uses the blue of the logo everywhere in the interface.
+- Signed with a Developer ID and notarized by Apple: macOS now opens the app without a security warning.
+- Version number aligned across the Skyrim Mac Toolkit.
 
 ### Updates
 
-From version 1.1.2 the app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
+The app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 ### Screenshots
 
@@ -122,15 +121,14 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
 
-### Nouveautés de la 1.1.2
+### Nouveautés de la 1.3.0
 
-- Écran de lancement animé : l'icône arrive en tourbillon, son œil cligne deux fois et le nom s'écrit lettre par lettre. Avec « Réduire les animations », le splash reste fixe.
-- Onglet Fichiers : un clic sur l'en-tête d'une colonne trie le tableau (nom, version, téléchargements, uniques, contrôle Nexus) ; nouvelle colonne « Ajouté le », triable, avec la date d'envoi.
-- Le « n » de nEXUSWATCH prend le bleu du logo partout dans l'interface.
+- Signée avec un certificat Developer ID et notarisée par Apple : macOS ouvre désormais l'appli sans avertissement de sécurité.
+- Numéro de version commun à tout le Skyrim Mac Toolkit.
 
 ### Mises à jour
 
-À partir de la version 1.1.2, l'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose d'ouvrir la page Nexus, de rappeler plus tard ou d'ignorer cette version. Rien n'est téléchargé ni installé automatiquement. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
+L'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose d'ouvrir la page Nexus, de rappeler plus tard ou d'ignorer cette version. Rien n'est téléchargé ni installé automatiquement. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
 
 ### Captures d'écran
 
