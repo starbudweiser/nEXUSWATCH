@@ -5,6 +5,7 @@
 // Chronologie : t = 0 splash visible → t = 2 s fenêtre de l'appli → t = 4 s sortie du splash (600 ms).
 // Fenêtre pas prête à 2 s : elle s'ouvre dès qu'elle l'est et le splash l'attend avant de sortir.
 // « Réduire les animations » (Réglages Système) : splash fixe, mêmes durées.
+// Essais discrets : avec la variable SPLASH_QUIET, rien ne passe devant le travail en cours ni ne prend le focus.
 import AppKit
 import SwiftUI
 
@@ -42,6 +43,7 @@ final class Splash {
     private var leaving = false
     private var pending: NSWindow?
     private var gated = Set<ObjectIdentifier>()
+    private let quiet = ProcessInfo.processInfo.environment["SPLASH_QUIET"] != nil
 
     /// Trace la chronologie sur la sortie d'erreur si la variable SPLASH_TRACE est définie.
     private func trace(_ what: String) {
@@ -59,7 +61,7 @@ final class Splash {
         // pas d'ombre native : sur une fenêtre transparente, macOS la dessine autour du cadre entier
         p.hasShadow = false
         p.isMovable = false
-        p.level = .floating
+        p.level = quiet ? .normal : .floating
         p.hidesOnDeactivate = false
         p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         let host = NSHostingView(rootView: SplashView(config: config, model: model))
@@ -69,7 +71,7 @@ final class Splash {
         if let sf = (NSScreen.main ?? NSScreen.screens.first)?.frame {
             p.setFrameOrigin(NSPoint(x: (sf.midX - Self.size.width / 2).rounded(), y: (sf.midY - Self.size.height / 2).rounded()))
         }
-        p.orderFrontRegardless()
+        if quiet { p.orderBack(nil) } else { p.orderFrontRegardless() }
         panel = p
         shownAt = Date()
         model.appeared = true
@@ -106,9 +108,13 @@ final class Splash {
     private func reveal(_ window: NSWindow) {
         pending = nil
         window.alphaValue = 1
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        panel?.orderFrontRegardless()
+        if quiet {
+            window.orderBack(nil)
+        } else {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            panel?.orderFrontRegardless()
+        }
         trace("fenêtre principale affichée")
         // le splash reste au moins un instant au-dessus d'une fenêtre ouverte tard
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [self] in
