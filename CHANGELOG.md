@@ -2,6 +2,22 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
+## 1.4.0
+
+**English**
+
+- New optional Discord module (read-only): new threads from your server's forums, unread counts, threads without a reply from the server owner, forum tags, "Reply on Discord" button.
+- Bot setup from the settings: Application ID builds the invite link, secure token field (stored in the Keychain), connection test, per-forum choice.
+- One quiet summary notification (no sound) per refresh; the first load is silent.
+- The module is hidden until a bot token is saved; it never writes to Discord.
+
+**Français**
+
+- Nouveau module Discord facultatif (lecture seule) : nouveaux fils des forums de votre serveur, non-lus, fils sans réponse du propriétaire du serveur, étiquettes, bouton « Répondre sur Discord ».
+- Création du robot depuis les réglages : l'Application ID fabrique le lien d'invitation, champ sécurisé du jeton (rangé dans le Trousseau), test de connexion, choix des forums.
+- Une seule notification récapitulative discrète (sans son) par actualisation ; le premier chargement est silencieux.
+- Le module reste invisible tant qu'aucun jeton n'est enregistré ; il n'écrit jamais sur Discord.
+
 ## 1.3.0
 
 **English**

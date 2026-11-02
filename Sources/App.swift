@@ -79,7 +79,8 @@ struct RootView: View {
         HStack(spacing: 0) {
             ModSidebar(adding: $adding)
             Divider().overlay(Socle.C.border)
-            if store.hasMods { main }
+            if store.showDiscord { DiscordView(settings: $settings) }
+            else if store.hasMods { main }
             else {
                 VStack(spacing: Socle.M.space3) {
                     EmptyState(text: L.t("mods.empty")).frame(maxHeight: 120)
@@ -139,7 +140,7 @@ struct ModSidebar: View {
                 Spacer()
                 Button { Task { await store.refreshAll() } } label: { Image(systemName: "arrow.clockwise") }
                     .buttonStyle(.plain).foregroundStyle(Socle.C.textMuted)
-                    .disabled(store.busy || !store.hasMods).help(L.t("action.refreshall"))
+                    .disabled(store.busy || (!store.hasMods && !store.discordVisible)).help(L.t("action.refreshall"))
                 Button { adding = true } label: { Image(systemName: "plus") }
                     .buttonStyle(.plain).foregroundStyle(Socle.C.textMuted).help(L.t("mods.add"))
             }
@@ -149,12 +150,12 @@ struct ModSidebar: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(store.data.mods) { m in
-                        ListRow(selected: m.id == store.state.id, unread: m.unreadPosts + m.unreadBugs > 0) {
+                        ListRow(selected: !store.showDiscord && m.id == store.state.id, unread: m.unreadPosts + m.unreadBugs > 0) {
                             store.select(m.id)
                         } content: {
                             HStack(spacing: Socle.M.space1_5) {
                                 Text(m.displayName).socle(Socle.T.labelStrong).lineLimit(2)
-                                    .foregroundStyle(m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
+                                    .foregroundStyle(!store.showDiscord && m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
                                 Spacer(minLength: 0)
                                 if store.refreshing == m.id { ProgressView().controlSize(.mini) }
                                 else if m.unreadPosts + m.unreadBugs > 0 { CountBadge(n: m.unreadPosts + m.unreadBugs) }
@@ -172,6 +173,26 @@ struct ModSidebar: View {
                         .contextMenu {
                             Button(L.t("action.open")) { NSWorkspace.shared.open(m.config.pageURL) }
                             Button(L.t("mods.remove")) { removing = m }
+                        }
+                    }
+                    if store.discordVisible {
+                        Divider().overlay(Socle.C.border).padding(.vertical, Socle.M.space1)
+                        ListRow(selected: store.showDiscord, unread: store.discordUnread > 0) {
+                            store.selectDiscord()
+                        } content: {
+                            HStack(spacing: Socle.M.space1_5) {
+                                Text(L.t("discord.title")).socle(Socle.T.labelStrong)
+                                    .foregroundStyle(store.showDiscord ? Socle.C.warning : Socle.C.textStrong)
+                                Spacer(minLength: 0)
+                                if store.discordBusy { ProgressView().controlSize(.mini) }
+                                else if store.discordUnread > 0 { CountBadge(n: store.discordUnread) }
+                            }
+                            HStack(spacing: Socle.M.space1_5) {
+                                Text(store.discord.guildName).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                                if store.discordError != nil {
+                                    Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
+                                }
+                            }
                         }
                     }
                 }
@@ -1037,6 +1058,8 @@ struct SettingsView: View {
     @State private var openAIKey = ""
     @State private var anthropicKey = ""
     @State private var typesafeKey = ""
+    @State private var discordAppId = ""
+    @State private var discordToken = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1053,6 +1076,7 @@ struct SettingsView: View {
                 Button(L.t("action.save")) {
                     store.updateSettings(interval: interval, notifications: notify)
                     store.updateAI(ai, openAIKey: openAIKey, anthropicKey: anthropicKey, typesafeKey: typesafeKey)
+                    store.updateDiscord(applicationId: discordAppId, newToken: discordToken)
                     dismiss()
                 }
                 .buttonStyle(SocleButtonStyle(.primary)).fixedSize()
@@ -1070,6 +1094,7 @@ struct SettingsView: View {
             openAIKey = Keychain.get("openai")
             anthropicKey = Keychain.get("anthropic")
             typesafeKey = Keychain.get("typesafe")
+            discordAppId = store.discord.applicationId
         }
     }
 
@@ -1086,6 +1111,8 @@ struct SettingsView: View {
             Text(L.t("settings.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
             Divider().overlay(Socle.C.border)
             aiSection
+            Divider().overlay(Socle.C.border)
+            DiscordSettings(applicationId: $discordAppId, token: $discordToken)
     }
 
     @ViewBuilder private var aiSection: some View {

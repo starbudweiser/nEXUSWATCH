@@ -12,10 +12,11 @@
 
 ### What it does
 
-Publishing a mod means checking its page again and again for new comments, bug reports or a file stuck in the virus scan. nEXUSWATCH does it for you in the background and notifies you when something new comes in. No API key, no login: it only reads the mod's public pages. Version 1.1 audits the bug reports for you and can hand them to the AI agent of your choice.
+Publishing a mod means checking its page again and again for new comments, bug reports or a file stuck in the virus scan. nEXUSWATCH does it for you in the background and notifies you when something new comes in. No API key, no login: it only reads the mod's public pages (the optional Discord module needs its own bot). Version 1.1 audits the bug reports for you and can hand them to the AI agent of your choice.
 
 ### Features
 
+- **New in 1.4 — Discord** (optional, read-only): a Discord bot you create shows the new threads of your support forums, unread counts and the threads still unanswered. Nothing is ever written to Discord.
 - **New in 1.1 — several mods**: watch all your mod pages in one window, with unread counts in the sidebar.
 - **New in 1.1 — bug audit**: open bugs ranked by priority (critical, high, medium, low) with the action to take for each, bugs their authors say are solved, bug reports hidden in posts and feature requests. Works without AI, in the app's language.
 - **New in 1.1 — A4 report**: read the audit as an A4 page, print it or save it as PDF.
@@ -28,6 +29,11 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - **Files**: downloads per file and Nexus virus-scan status (quarantined files flagged).
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
+
+### What's new in 1.4.0
+
+- New optional **Discord** module (read-only): new threads from your server's forums, unread counts, threads without a reply from the server owner, forum tags, and a "Reply on Discord" button that opens the thread. Create the bot from the settings (step-by-step help, connection test); it only needs "View Channels" and "Read Message History". One quiet summary notification (no sound) per refresh.
+- Without a bot token the module does not appear.
 
 ### What's new in 1.3.0
 
@@ -89,7 +95,7 @@ Choose **MCP server** in the settings and copy the command shown, for example `c
 
 ### Privacy
 
-Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH). The optional AI features send the mod's public posts and bug reports only to the service you choose, with your own API key (stored in the macOS Keychain); Jev sorting sends the post texts to TypeSafe. With the MCP server or the export, nothing leaves your Mac unless your agent asks for it.
+Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH). The optional AI features send the mod's public posts and bug reports only to the service you choose, with your own API key (stored in the macOS Keychain); Jev sorting sends the post texts to TypeSafe. With the MCP server or the export, nothing leaves your Mac unless your agent asks for it. The optional **Discord** module reads, with a read-only bot you create yourself, the threads and messages of your own server's forums; the bot token is stored in the macOS Keychain and the messages stay on your Mac (discord.json, same folder; threads inactive for 90 days are purged, and a button erases everything). Nothing is written to Discord, and nothing from Discord is sent anywhere.
 
 ### Building from source
 
@@ -109,10 +115,11 @@ Released under the **MIT License**: free to use, modify and share. Part of the *
 
 ### À quoi ça sert
 
-Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentaire, un rapport de bug ou un fichier bloqué par l'antivirus. nEXUSWATCH s'en charge en arrière-plan et vous prévient dès qu'il y a du nouveau. Ni clé API ni connexion : il ne lit que les pages publiques du mod. La version 1.1 audite les rapports de bugs pour vous et peut les confier à l'agent IA de votre choix.
+Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentaire, un rapport de bug ou un fichier bloqué par l'antivirus. nEXUSWATCH s'en charge en arrière-plan et vous prévient dès qu'il y a du nouveau. Ni clé API ni connexion : il ne lit que les pages publiques du mod (le module Discord facultatif a son propre robot). La version 1.1 audite les rapports de bugs pour vous et peut les confier à l'agent IA de votre choix.
 
 ### Fonctions
 
+- **Nouveau en 1.4 — Discord** (facultatif, lecture seule) : un robot Discord que vous créez affiche les nouveaux fils de vos forums de support, les non-lus et les fils restés sans réponse. Rien n'est jamais écrit sur Discord.
 - **Nouveau en 1.1 — plusieurs mods** : toutes vos pages de mods dans une seule fenêtre, avec les non-lus dans la barre latérale.
 - **Nouveau en 1.1 — audit des bugs** : bugs ouverts classés par priorité (critique, haute, moyenne, basse) avec l'action à mener pour chacun, bugs que leurs auteurs disent résolus, bugs cachés dans les posts et demandes de fonctions. Sans IA, dans la langue de l'appli.
 - **Nouveau en 1.1 — rapport A4** : lisez l'audit en page A4, imprimez-le ou enregistrez-le en PDF.
@@ -125,6 +132,11 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
+
+### Nouveautés de la 1.4.0
+
+- Nouveau module **Discord** facultatif (lecture seule) : nouveaux fils des forums de votre serveur, non-lus, fils sans réponse du propriétaire du serveur, étiquettes des forums et bouton « Répondre sur Discord » qui ouvre le fil. Création du robot depuis les réglages (aide pas à pas, test de connexion) ; il lui suffit de « Voir les salons » et « Lire l'historique ». Une seule notification récapitulative discrète (sans son) par actualisation.
+- Sans jeton de robot, le module n'apparaît pas.
 
 ### Nouveautés de la 1.3.0
 
@@ -186,7 +198,7 @@ Choisissez **Serveur MCP** dans les réglages et copiez la commande affichée, p
 
 ### Confidentialité
 
-Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont lues, sans compte ni clé API. L'état lu, le suivi des bugs et les notes restent sur votre Mac (~/Library/Application Support/nEXUSWATCH). Les fonctions IA facultatives n'envoient les posts et rapports de bugs publics du mod qu'au service que vous choisissez, avec votre propre clé API (rangée dans le trousseau macOS) ; le tri Jev envoie le texte des posts à TypeSafe. Avec le serveur MCP ou l'export, rien ne quitte votre Mac sans que votre agent le demande.
+Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont lues, sans compte ni clé API. L'état lu, le suivi des bugs et les notes restent sur votre Mac (~/Library/Application Support/nEXUSWATCH). Les fonctions IA facultatives n'envoient les posts et rapports de bugs publics du mod qu'au service que vous choisissez, avec votre propre clé API (rangée dans le trousseau macOS) ; le tri Jev envoie le texte des posts à TypeSafe. Avec le serveur MCP ou l'export, rien ne quitte votre Mac sans que votre agent le demande. Le module facultatif **Discord** lit, avec un robot en lecture seule que vous créez vous-même, les fils et messages des forums de votre propre serveur ; le jeton du robot est rangé dans le trousseau macOS et les messages restent sur votre Mac (discord.json, même dossier ; les fils inactifs depuis 90 jours sont purgés, et un bouton efface tout). Rien n'est écrit sur Discord et rien de Discord n'est envoyé ailleurs.
 
 ### Compiler depuis les sources
 

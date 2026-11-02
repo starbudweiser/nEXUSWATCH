@@ -13,6 +13,11 @@ final class Store: ObservableObject {
     @Published var aiErrors: [String: String] = [:]
     /// Rapport affiché dans la fenêtre de lecture A4.
     @Published var report: ReportRequest?
+    // Module Discord (lecture seule) : état dans discord.json, jeton au Trousseau (lu après l'ouverture de la fenêtre).
+    @Published var discord = DiscordStorage.load()
+    @Published var discordBusy = false
+    @Published var discordError: String?
+    @Published var hasDiscordToken = false
     let fetcher = NexusFetcher()
     private var timer: Timer?
     private var queue: [String] = []
@@ -21,7 +26,12 @@ final class Store: ObservableObject {
         schedule()
         if data.notifications { requestNotifications() }
         updateBadge()
-        DispatchQueue.main.async { [weak self] in self?.hasTypesafeKey = !Keychain.get("typesafe").isEmpty }
+        DispatchQueue.main.async { [weak self] in
+            self?.hasTypesafeKey = !Keychain.get("typesafe").isEmpty
+            self?.hasDiscordToken = !Keychain.get("discord").isEmpty
+            self?.updateBadge()
+            if self?.hasDiscordToken == true { Task { await self?.refreshDiscord() } }
+        }
     }
 
     // MARK: Mods suivis
@@ -97,8 +107,15 @@ final class Store: ObservableObject {
 
     // MARK: Actualisation
 
-    func refreshAll() async { await refresh(data.mods.map(\.id)) }
-    func refreshCurrent() async { if hasMods { await refresh([state.id]) } }
+    /// Discord se lit en parallèle de la file Nexus : simple requête réseau, sans le lecteur de page partagé.
+    func refreshAll() async {
+        async let discordDone: Void = refreshDiscord()
+        await refresh(data.mods.map(\.id))
+        await discordDone
+    }
+    func refreshCurrent() async {
+        if showDiscord { await refreshDiscord() } else if hasMods { await refresh([state.id]) }
+    }
 
     /// Met les mods en file : la page de chaque mod est lue l'un après l'autre.
     func refresh(_ ids: [String]) async {
@@ -288,7 +305,7 @@ final class Store: ObservableObject {
     func save() { Storage.save(data) }
 
     func updateBadge() {
-        let n = data.mods.reduce(0) { $0 + $1.unreadPosts + $1.unreadBugs }
+        let n = data.mods.reduce(0) { $0 + $1.unreadPosts + $1.unreadBugs } + discordUnread
         NSApp?.dockTile.badgeLabel = n > 0 ? String(n) : nil
     }
 
