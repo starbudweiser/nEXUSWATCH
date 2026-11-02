@@ -48,7 +48,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Socle.apply()
-        UpdateCheck.start(repo: "nEXUSWATCH", lang: L.lang)  // nouvelle version ? (au plus une fois par jour)
+        UpdateEngine.shared.configure(repo: "nEXUSWATCH", lang: { L.lang })
+        UpdateEngine.shared.start()  // nouvelle version ? (au plus une fois par jour)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { UpdateEngine.shared.installAppMenuItem() }
     }
     // La fenêtre fermée, l'appli continue de vérifier en arrière-plan (badge du Dock et notifications).
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
