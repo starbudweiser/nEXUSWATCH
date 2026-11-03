@@ -19,6 +19,7 @@ done
 iconutil -c icns build/icon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 rm -rf build
-"$(cd .. && pwd)/_tools/sign_app.sh" "$APP"
+# Developer ID (Team ID stable) : le Trousseau ne redemande plus le mot de passe après une recompilation (voir sign_app.sh).
+SIGN_DEVELOPER_ID=1 "$(cd .. && pwd)/_tools/sign_app.sh" "$APP"
 echo "OK : $APP"
 [ -n "${NO_OPEN:-}" ] || open "$APP"
