@@ -3,6 +3,8 @@
 **For mod authors: keeps an eye on your Nexus Mods pages — stats, posts, bug reports and files — and turns the bug reports into a development plan.**  
 *Pour les auteurs de mods : surveille vos pages Nexus Mods — stats, posts, rapports de bugs et fichiers — et fait des rapports de bugs un plan de développement.*
 
+🍏 **Native Mac app written in Swift, signed and notarized by Apple.** · *Appli Mac native écrite en Swift, signée et notarisée par Apple.*
+
 🇬🇧 [English](#-english) · 🇫🇷 [Français](#-français)
 
 💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
@@ -69,7 +71,7 @@ The app checks once a day whether a newer release exists on GitHub and offers to
 
 ### Requirements
 
-A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. No Python, no Wine, no virtual machine needed.
+A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. Native Mac app written in Swift and notarized by Apple: no Python, no Wine, no virtual machine needed.
 
 ### Installation
 
@@ -172,7 +174,7 @@ L'appli vérifie une fois par jour si une version plus récente existe sur GitHu
 
 ### Configuration requise
 
-Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus récent. Ni Python, ni Wine, ni machine virtuelle.
+Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus récent. Appli Mac native écrite en Swift et notarisée par Apple : ni Python, ni Wine, ni machine virtuelle.
 
 ### Installation
 
