@@ -39,6 +39,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 
 ### What's new in 2.0.0
 
+- Guided tour in 8 steps, spoken in your language, at first launch and from the Help menu.
 - Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages), with history and notes, and notifies you when a new version comes out.
 - "About nEXUSWATCH" window redesigned: version, authors and licence, in all four languages.
 - Shorter mod names in the header and the list (full name on hover).
@@ -99,6 +100,7 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. Native
 5. Open the **AI audit** tab for the priority plan: **A4 reading** prints it or saves it as PDF, **Copy fix prompt** gives the brief for your coding agent.
 6. Optional: in the settings, turn on **AI agent support** and pick a method.
 7. To follow other tools and mods, open **Watch** in the sidebar and paste a GitHub repository or a Nexus mod page; **Check** reads their latest version.
+8. Replay the **guided tour** at any time from the **Help** menu.
 
 ### FAQ
 
@@ -151,6 +153,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 
 ### Nouveautés de la 2.0.0
 
+- Visite guidée en 8 étapes, commentée dans votre langue, au premier lancement et depuis le menu Aide.
 - Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus), avec historique et notes, et vous prévient à chaque nouvelle version.
 - Fenêtre « À propos de nEXUSWATCH » refaite : version, auteurs et licence, dans les quatre langues.
 - Noms de mods raccourcis dans l'en-tête et la liste (nom complet au survol).
@@ -211,6 +214,7 @@ Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus réce
 5. Ouvrez l'onglet **Audit IA** pour le plan par priorité : **Lecture A4** l'imprime ou l'enregistre en PDF, **Copier le prompt de correction** donne la consigne pour votre agent de développement.
 6. Facultatif : dans les réglages, activez le **support agent IA** et choisissez une méthode.
 7. Pour suivre d'autres outils et mods, ouvrez **Veille** dans la barre latérale et collez un dépôt GitHub ou une page de mod Nexus ; **Vérifier** relève leur dernière version.
+8. Relancez la **visite guidée** à tout moment depuis le menu **Aide**.
 
 ### Questions fréquentes
 
