@@ -209,6 +209,7 @@ struct ModSidebar: View {
                         }
                     }
                     Divider().overlay(Socle.C.border).padding(.vertical, Socle.M.space1)
+                    VStack(spacing: 0) {  // ListRow renvoie deux vues (ligne et filet) : le repère doit couvrir l'ensemble
                     ListRow(selected: store.showWatch, unread: false) { store.selectWatch() } content: {
                         HStack(spacing: Socle.M.space1_5) {
                             Text(L.t("watch.tab")).socle(Socle.T.labelStrong)
@@ -222,6 +223,7 @@ struct ModSidebar: View {
                                 Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                             }
                         }
+                    }
                     }
                     .tourAnchor(.watch)
                 }

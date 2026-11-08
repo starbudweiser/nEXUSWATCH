@@ -135,7 +135,9 @@ struct TourOverlay: View {
     var body: some View {
         if let i = tour.index, let step = tour.step {
             let size = proxy.size
-            let hole = step.target.flatMap { anchors[$0] }.map { proxy[$0].insetBy(dx: -6, dy: -6) }
+            // Marge de 6 px autour de la zone, sans sortir de la fenêtre (le cadre resterait coupé au bord).
+            let hole = step.target.flatMap { anchors[$0] }
+                .map { proxy[$0].insetBy(dx: -6, dy: -6).intersection(CGRect(origin: .zero, size: size).insetBy(dx: 3, dy: 3)) }
             ZStack(alignment: .topLeading) {
                 Path { p in
                     p.addRect(CGRect(origin: .zero, size: size))
