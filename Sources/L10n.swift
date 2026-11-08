@@ -32,6 +32,8 @@ enum L {
     private static let tables: [String: [String: String]] = ["fr": fr, "en": en, "it": it, "es": es]
 
     private static let fr: [String: String] = [
+        "watch.web.insecure": "Ce site n'existe qu'en http, sans chiffrement : macOS bloque la connexion.",
+        "watch.web.changed": "Page modifiée le %@",
         "tour.menu": "Visite guidée",
         "tour.count": "Étape %ld sur %ld",
         "tour.skip": "Passer",
@@ -60,12 +62,13 @@ enum L {
         "watch.count": "%ld produits suivis",
         "watch.subtitle": "Dernières versions des outils et mods suivis",
         "watch.check": "VÉRIFIER",
-        "watch.add.placeholder": "URL GitHub ou Nexus (ou propriétaire/dépôt)",
+        "watch.add.placeholder": "URL GitHub, Nexus ou page web",
         "watch.add.name": "Nom (facultatif)",
-        "watch.invalid": "Adresse non reconnue : dépôt GitHub ou page de mod Nexus.",
+        "watch.invalid": "Adresse non reconnue : dépôt GitHub, page de mod Nexus ou adresse web (https://…).",
         "watch.duplicate": "Déjà dans la liste.",
         "watch.kind.github": "GitHub",
         "watch.kind.nexus": "Nexus",
+        "watch.kind.web": "Web",
         "watch.unchecked": "Pas encore vérifié",
         "watch.checked": "Vérifié le %@",
         "watch.history": "Historique",
@@ -320,6 +323,8 @@ enum L {
     ]
 
     private static let en: [String: String] = [
+        "watch.web.insecure": "This site is only available over plain http: macOS blocks the connection.",
+        "watch.web.changed": "Page changed %@",
         "tour.menu": "Guided tour",
         "tour.count": "Step %ld of %ld",
         "tour.skip": "Skip",
@@ -348,12 +353,13 @@ enum L {
         "watch.count": "%ld watched products",
         "watch.subtitle": "Latest versions of the tools and mods you follow",
         "watch.check": "CHECK",
-        "watch.add.placeholder": "GitHub or Nexus URL (or owner/repo)",
+        "watch.add.placeholder": "GitHub, Nexus or web page URL",
         "watch.add.name": "Name (optional)",
-        "watch.invalid": "Address not recognised: GitHub repository or Nexus mod page.",
+        "watch.invalid": "Address not recognised: GitHub repository, Nexus mod page or web address (https://…).",
         "watch.duplicate": "Already in the list.",
         "watch.kind.github": "GitHub",
         "watch.kind.nexus": "Nexus",
+        "watch.kind.web": "Web",
         "watch.unchecked": "Not checked yet",
         "watch.checked": "Checked %@",
         "watch.history": "History",
@@ -608,6 +614,8 @@ enum L {
     ]
 
     private static let it: [String: String] = [
+        "watch.web.insecure": "Questo sito esiste solo in http, senza cifratura: macOS blocca la connessione.",
+        "watch.web.changed": "Pagina modificata il %@",
         "tour.menu": "Visita guidata",
         "tour.count": "Passo %ld di %ld",
         "tour.skip": "Salta",
@@ -636,12 +644,13 @@ enum L {
         "watch.count": "%ld prodotti monitorati",
         "watch.subtitle": "Ultime versioni degli strumenti e dei mod che segui",
         "watch.check": "CONTROLLA",
-        "watch.add.placeholder": "URL GitHub o Nexus (o proprietario/repository)",
+        "watch.add.placeholder": "URL GitHub, Nexus o pagina web",
         "watch.add.name": "Nome (facoltativo)",
-        "watch.invalid": "Indirizzo non riconosciuto: repository GitHub o pagina di mod Nexus.",
+        "watch.invalid": "Indirizzo non riconosciuto: repository GitHub, pagina di mod Nexus o indirizzo web (https://…).",
         "watch.duplicate": "Già nell'elenco.",
         "watch.kind.github": "GitHub",
         "watch.kind.nexus": "Nexus",
+        "watch.kind.web": "Web",
         "watch.unchecked": "Non ancora controllato",
         "watch.checked": "Controllato il %@",
         "watch.history": "Cronologia",
@@ -896,6 +905,8 @@ enum L {
     ]
 
     private static let es: [String: String] = [
+        "watch.web.insecure": "Este sitio solo existe en http, sin cifrado: macOS bloquea la conexión.",
+        "watch.web.changed": "Página modificada el %@",
         "tour.menu": "Visita guiada",
         "tour.count": "Paso %ld de %ld",
         "tour.skip": "Omitir",
@@ -924,12 +935,13 @@ enum L {
         "watch.count": "%ld productos vigilados",
         "watch.subtitle": "Últimas versiones de las herramientas y mods que sigues",
         "watch.check": "COMPROBAR",
-        "watch.add.placeholder": "URL de GitHub o Nexus (o propietario/repositorio)",
+        "watch.add.placeholder": "URL de GitHub, Nexus o página web",
         "watch.add.name": "Nombre (opcional)",
-        "watch.invalid": "Dirección no reconocida: repositorio de GitHub o página de mod de Nexus.",
+        "watch.invalid": "Dirección no reconocida: repositorio de GitHub, página de mod de Nexus o dirección web (https://…).",
         "watch.duplicate": "Ya está en la lista.",
         "watch.kind.github": "GitHub",
         "watch.kind.nexus": "Nexus",
+        "watch.kind.web": "Web",
         "watch.unchecked": "Aún no comprobado",
         "watch.checked": "Comprobado el %@",
         "watch.history": "Historial",

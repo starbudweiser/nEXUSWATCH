@@ -1,10 +1,11 @@
 // nEXUSWATCH — Veille : dernières versions de produits suivis (releases GitHub, fiches Nexus), reprise de hERALD.
-// Lecture publique uniquement : API GitHub sans jeton, API GraphQL de Nexus sans clé.
+// Lecture publique uniquement : API GitHub sans jeton, API GraphQL de Nexus sans clé, pages web lues comme un navigateur.
+import CryptoKit
 import SwiftUI
 import UserNotifications
 
 enum WatchKind: String, Codable, CaseIterable, Identifiable {
-    case github, nexus
+    case github, nexus, web
     var id: String { rawValue }
     var label: String { L.t("watch.kind.\(rawValue)") }
 }
@@ -23,7 +24,7 @@ struct WatchItem: Codable, Identifiable, Hashable {
     var id = UUID()
     var name = ""
     var kind: WatchKind = .github
-    /// « propriétaire/dépôt » pour GitHub, « jeu/identifiant » pour Nexus.
+    /// « propriétaire/dépôt » pour GitHub, « jeu/identifiant » pour Nexus, adresse complète pour une page web.
     var ref = ""
     var notes = ""
     var lastChecked: Date?
@@ -38,8 +39,12 @@ struct WatchItem: Codable, Identifiable, Hashable {
         case .nexus:
             let p = ref.split(separator: "/")
             return p.count == 2 ? URL(string: "https://www.nexusmods.com/\(p[0])/mods/\(p[1])") : nil
+        case .web: return URL(string: ref)
         }
     }
+
+    /// Version affichée : une page web sans numéro de version n'a que sa date de changement.
+    static func label(_ s: WatchSnapshot) -> String { s.version.isEmpty ? L.t("watch.web.changed", L.day(s.date)) : s.version }
 
     /// Lit une URL GitHub ou Nexus (ou « a/b ») et en déduit le type et la référence.
     static func parse(_ input: String) -> (WatchKind, String)? {
@@ -50,7 +55,8 @@ struct WatchItem: Codable, Identifiable, Hashable {
             if host.hasSuffix("nexusmods.com"), parts.count >= 3, parts[1] == "mods", Int(parts[2]) != nil {
                 return (.nexus, "\(parts[0])/\(parts[2])")
             }
-            return nil
+            // Toute autre adresse : page web suivie telle quelle (version relevée dans le texte, sinon changement de contenu).
+            return ["http", "https"].contains(u.scheme?.lowercased() ?? "") ? (.web, s) : nil
         }
         let parts = s.split(separator: "/").map(String.init)
         guard parts.count == 2, !parts[0].isEmpty, !parts[1].isEmpty else { return nil }
@@ -67,10 +73,11 @@ enum Watcher {
         switch item.kind {
         case .github: return await github(item.ref)
         case .nexus: return await nexus(item.ref)
+        case .web: return await web(item.ref)
         }
     }
 
-    private static func send(_ r: URLRequest) async -> Result<Data, WatchError> {
+    static func send(_ r: URLRequest) async -> Result<Data, WatchError> {
         var r = r
         r.timeoutInterval = 20
         r.setValue("nEXUSWATCH/\(version)", forHTTPHeaderField: "User-Agent")
@@ -79,6 +86,8 @@ enum Watcher {
             let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
             guard (200..<300).contains(code) else { return .failure(WatchError(message: L.t("watch.http", code))) }
             return .success(d)
+        } catch let e as URLError where e.code == .appTransportSecurityRequiresSecureConnection {
+            return .failure(WatchError(message: L.t("watch.web.insecure")))  // site en http seulement (ou redirigé vers http)
         } catch {
             return .failure(WatchError(message: error.localizedDescription))
         }
@@ -128,6 +137,42 @@ enum Watcher {
     }
 }
 
+extension Watcher {
+    /// Page web : le plus haut numéro de version écrit dans le texte (« Version 0.505 », « v0.505 »), sinon une empreinte
+    /// du texte, qui ne signale qu'un changement de contenu.
+    static func web(_ ref: String) async -> Result<WatchSnapshot, WatchError> {
+        // Une adresse http est lue en https : macOS refuse les connexions non chiffrées (App Transport Security).
+        guard var parts = URLComponents(string: ref) else { return .failure(WatchError(message: L.t("watch.invalid"))) }
+        if parts.scheme?.lowercased() == "http" { parts.scheme = "https" }
+        guard let url = parts.url else { return .failure(WatchError(message: L.t("watch.invalid"))) }
+        var r = URLRequest(url: url)
+        // Requête de lecteur ordinaire, sous le nom de l'appli : certains serveurs refusent une demande sans type de contenu accepté.
+        r.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
+        r.setValue("en", forHTTPHeaderField: "Accept-Language")
+        switch await send(r) {
+        case .failure(let e): return .failure(e)
+        case .success(let d):
+            guard let raw = String(data: d, encoding: .utf8) ?? String(data: d, encoding: .isoLatin1) else {
+                return .failure(WatchError(message: L.t("watch.parse")))
+            }
+            let text = raw.replacingOccurrences(of: "(?is)<(script|style)\\b.*?</\\1>", with: " ", options: .regularExpression)
+                .replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression)
+                .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            let title = raw.range(of: "(?is)<title[^>]*>(.*?)</title>", options: .regularExpression)
+                .map { String(raw[$0]).replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                    .trimmingCharacters(in: .whitespacesAndNewlines) } ?? ""
+            let pattern = try! NSRegularExpression(pattern: #"(?i)\b(?:version|ver\.?|v)\s*:?\s*(\d+(?:\.\d+){1,3})\b"#)
+            let ns = text as NSString
+            let found = pattern.matches(in: text, range: NSRange(location: 0, length: ns.length)).map { ns.substring(with: $0.range(at: 1)) }
+            if let best = found.max(by: { $0.compare($1, options: .numeric) == .orderedAscending }) {
+                return .success(WatchSnapshot(version: best, title: title))
+            }
+            let digest = SHA256.hash(data: Data(text.utf8)).map { String(format: "%02x", $0) }.joined().prefix(16)
+            return .success(WatchSnapshot(version: "", title: String(digest)))
+        }
+    }
+}
+
 // MARK: État
 
 extension Store {
@@ -145,7 +190,8 @@ extension Store {
             return L.t("watch.duplicate")
         }
         let n = name.trimmingCharacters(in: .whitespaces)
-        let item = WatchItem(name: n.isEmpty ? ref : n, kind: kind, ref: ref)
+        let fallback = kind == .web ? (URL(string: ref)?.host ?? ref) : ref
+        let item = WatchItem(name: n.isEmpty ? fallback : n, kind: kind, ref: ref)
         data.watch = watchItems + [item]
         save()
         Task { await checkWatch([item.id]) }
@@ -178,11 +224,12 @@ extension Store {
             switch result {
             case .success(let snap):
                 w.error = nil
-                if let last = w.latest, last.version == snap.version {
+                // Page sans numéro de version : c'est l'empreinte du texte (title) qui dit si elle a changé.
+                if let last = w.latest, last.version == snap.version, !snap.version.isEmpty || last.title == snap.title {
                     w.history[w.history.count - 1].downloads = snap.downloads
                     w.history[w.history.count - 1].endorsements = snap.endorsements
                 } else {
-                    if w.latest != nil, data.notifications { notifyRelease(w.name, snap.version) }
+                    if w.latest != nil, data.notifications { notifyRelease(w.name, WatchItem.label(snap)) }
                     w.history.append(snap)
                     if w.history.count > 200 { w.history.removeFirst() }
                 }
@@ -253,7 +300,7 @@ struct WatchView: View {
                             Badge(text: w.kind.label)
                         }
                         HStack(spacing: Socle.M.space1_5) {
-                            Text(w.latest?.version ?? L.t("watch.unchecked")).socle(Socle.T.mono).foregroundStyle(Socle.C.accentText).lineLimit(1)
+                            Text(w.latest.map(WatchItem.label) ?? L.t("watch.unchecked")).socle(Socle.T.mono).foregroundStyle(Socle.C.accentText).lineLimit(1)
                             Spacer(minLength: 0)
                             if w.error != nil { Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning) }
                         }
@@ -308,7 +355,7 @@ struct WatchDetail: View {
                         ForEach(Array(item.history.enumerated().reversed()), id: \.offset) { _, s in
                             HStack(spacing: Socle.M.space3) {
                                 Text(L.date(s.date)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).frame(width: 150, alignment: .leading)
-                                Text(s.version).socle(Socle.T.mono).foregroundStyle(Socle.C.accentText).lineLimit(1)
+                                Text(WatchItem.label(s)).socle(Socle.T.mono).foregroundStyle(Socle.C.accentText).lineLimit(1)
                                     .frame(width: 140, alignment: .leading)
                                 Text(s.published.map { L.t("watch.published", L.day($0)) } ?? "")
                                     .socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted)
