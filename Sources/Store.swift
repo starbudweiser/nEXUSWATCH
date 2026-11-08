@@ -332,6 +332,13 @@ final class Store: ObservableObject {
 extension ModState {
     var author: String { stats?.author ?? "" }
     var displayName: String { stats?.name ?? "\(config.domain) · \(config.modId)" }
+    /// Nom court : la partie avant le sous-titre (« mORTEX - Native Mod Manager… » → « mORTEX »).
+    var shortName: String {
+        for sep in [" - ", " – ", " — ", " | ", ": "] {
+            if let r = displayName.range(of: sep), r.lowerBound > displayName.startIndex { return String(displayName[..<r.lowerBound]) }
+        }
+        return displayName
+    }
 
     func isOwn(_ name: String) -> Bool { !author.isEmpty && name.caseInsensitiveCompare(author) == .orderedSame }
     func key(_ b: Bug) -> String { "b:\(b.id):\(b.signature)" }

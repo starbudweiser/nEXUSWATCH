@@ -159,7 +159,7 @@ struct ModSidebar: View {
                             store.select(m.id)
                         } content: {
                             HStack(spacing: Socle.M.space1_5) {
-                                Text(m.displayName).socle(Socle.T.labelStrong).lineLimit(2)
+                                Text(m.shortName).socle(Socle.T.labelStrong).lineLimit(2).help(m.displayName)
                                     .foregroundStyle(!store.showDiscord && m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
                                 Spacer(minLength: 0)
                                 if store.refreshing == m.id { ProgressView().controlSize(.mini) }
@@ -255,8 +255,9 @@ struct HeaderBar: View {
     var body: some View {
         HStack(spacing: Socle.M.space2) {
             Text(branded: "nEXUSWATCH").socle(Socle.T.title).foregroundStyle(Socle.C.textStrong)
-            Text(store.state.stats?.name ?? L.t("app.subtitle"))
+            Text(store.state.stats == nil ? L.t("app.subtitle") : store.state.shortName)
                 .socle(Socle.T.body).foregroundStyle(Socle.C.textMuted).lineLimit(1)
+                .help(store.state.stats?.name ?? "")
             Spacer(minLength: Socle.M.space4)
             if store.loading {
                 ProgressView().controlSize(.small)
