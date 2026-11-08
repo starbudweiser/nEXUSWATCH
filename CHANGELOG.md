@@ -2,7 +2,7 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
-## 2.0.1
+## 2.0.0
 
 **English**
 
@@ -10,6 +10,7 @@ Notes de version / release notes (EN + FR). Translations in IT and ES: see the N
 - "About nEXUSWATCH" window redesigned: version, authors and licence, in all four languages.
 - Shorter mod names in the header and the list (full name on hover).
 - Update dialogs are centred on the app window; clearer message when an operation is running.
+- Version number aligned across the Skyrim Mac Toolkit (2.0.0).
 
 **Français**
 
@@ -17,16 +18,7 @@ Notes de version / release notes (EN + FR). Translations in IT and ES: see the N
 - Fenêtre « À propos de nEXUSWATCH » refaite : version, auteurs et licence, dans les quatre langues.
 - Noms de mods raccourcis dans l'en-tête et la liste (nom complet au survol).
 - Fenêtres de mise à jour centrées sur l'appli ; message plus clair quand une opération est en cours.
-
-## 2.0.0
-
-**English**
-
-- Version number aligned across the Skyrim Mac Toolkit (2.0.0). No change in the app itself.
-
-**Français**
-
-- Numéro de version commun à tout le Skyrim Mac Toolkit (2.0.0). Aucun changement dans l'appli elle-même.
+- Numéro de version commun à tout le Skyrim Mac Toolkit (2.0.0).
 
 ## 1.4.0
 

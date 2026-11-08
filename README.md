@@ -37,7 +37,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
 
-### What's new in 2.0.1
+### What's new in 2.0.0
 
 - Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages), with history and notes, and notifies you when a new version comes out.
 - "About nEXUSWATCH" window redesigned: version, authors and licence, in all four languages.
@@ -149,7 +149,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
 
-### Nouveautés de la 2.0.1
+### Nouveautés de la 2.0.0
 
 - Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus), avec historique et notes, et vous prévient à chaque nouvelle version.
 - Fenêtre « À propos de nEXUSWATCH » refaite : version, auteurs et licence, dans les quatre langues.
