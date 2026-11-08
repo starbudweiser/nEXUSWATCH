@@ -9,6 +9,10 @@
 
 💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
 
+### About
+
+nEXUSWATCH keeps an eye on your Nexus Mods pages and turns the bug reports into a development plan. Made by **Starbudweiser & Claude Code (Anthropic)**. MIT License, © 2026 Starbudweiser. Provided as is, without warranty. In the app: **nEXUSWATCH › About nEXUSWATCH**.
+
 ---
 ## 🇬🇧 English
 

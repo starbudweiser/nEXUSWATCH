@@ -28,6 +28,11 @@ enum L {
     private static let tables: [String: [String: String]] = ["fr": fr, "en": en, "it": it, "es": es]
 
     private static let fr: [String: String] = [
+        "about.menu": "À propos de nEXUSWATCH",
+        "about.version": "Version %@ (%@)",
+        "about.tagline": "Surveille vos pages Nexus Mods (stats, posts, rapports de bugs, fichiers) et fait des rapports de bugs un plan de développement.",
+        "about.license": "Licence MIT. © 2026 Starbudweiser.",
+        "about.disclaimer": "Fourni en l'état, sans garantie.",
         "discord.title": "Discord",
         "discord.stat.unread": "Non lus",
         "discord.stat.waiting": "Sans réponse",
@@ -261,6 +266,11 @@ enum L {
     ]
 
     private static let en: [String: String] = [
+        "about.menu": "About nEXUSWATCH",
+        "about.version": "Version %@ (%@)",
+        "about.tagline": "Keeps an eye on your Nexus Mods pages (stats, posts, bug reports, files) and turns the bug reports into a development plan.",
+        "about.license": "MIT License. © 2026 Starbudweiser.",
+        "about.disclaimer": "Provided as is, without warranty.",
         "discord.title": "Discord",
         "discord.stat.unread": "Unread",
         "discord.stat.waiting": "Unanswered",
@@ -494,6 +504,11 @@ enum L {
     ]
 
     private static let it: [String: String] = [
+        "about.menu": "Informazioni su nEXUSWATCH",
+        "about.version": "Versione %@ (%@)",
+        "about.tagline": "Tiene d'occhio le tue pagine Nexus Mods (statistiche, post, segnalazioni di bug, file) e trasforma le segnalazioni in un piano di sviluppo.",
+        "about.license": "Licenza MIT. © 2026 Starbudweiser.",
+        "about.disclaimer": "Fornito così com'è, senza garanzia.",
         "discord.title": "Discord",
         "discord.stat.unread": "Non letti",
         "discord.stat.waiting": "Senza risposta",
@@ -727,6 +742,11 @@ enum L {
     ]
 
     private static let es: [String: String] = [
+        "about.menu": "Acerca de nEXUSWATCH",
+        "about.version": "Versión %@ (%@)",
+        "about.tagline": "Vigila tus páginas de Nexus Mods (estadísticas, publicaciones, informes de errores, archivos) y convierte los informes en un plan de desarrollo.",
+        "about.license": "Licencia MIT. © 2026 Starbudweiser.",
+        "about.disclaimer": "Se proporciona tal cual, sin garantía.",
         "discord.title": "Discord",
         "discord.stat.unread": "Sin leer",
         "discord.stat.waiting": "Sin respuesta",

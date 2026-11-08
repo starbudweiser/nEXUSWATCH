@@ -25,6 +25,9 @@ struct NexusWatchApp: App {
         }
         .defaultSize(width: 1327, height: 800)
         .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button(L.t("about.menu")) { About.show() }
+            }
             CommandGroup(after: .newItem) {
                 Button(L.t("action.refresh").capitalized) { Task { await store.refreshCurrent() } }
                     .keyboardShortcut("r")
