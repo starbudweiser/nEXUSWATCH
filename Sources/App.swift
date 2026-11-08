@@ -84,7 +84,8 @@ struct RootView: View {
         HStack(spacing: 0) {
             ModSidebar(adding: $adding)
             Divider().overlay(Socle.C.border)
-            if store.showDiscord { DiscordView(settings: $settings) }
+            if store.showWatch { WatchView() }
+            else if store.showDiscord { DiscordView(settings: $settings) }
             else if store.hasMods { main }
             else {
                 VStack(spacing: Socle.M.space3) {
@@ -155,12 +156,12 @@ struct ModSidebar: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(store.data.mods) { m in
-                        ListRow(selected: !store.showDiscord && m.id == store.state.id, unread: m.unreadPosts + m.unreadBugs > 0) {
+                        ListRow(selected: !store.showModule && m.id == store.state.id, unread: m.unreadPosts + m.unreadBugs > 0) {
                             store.select(m.id)
                         } content: {
                             HStack(spacing: Socle.M.space1_5) {
                                 Text(m.shortName).socle(Socle.T.labelStrong).lineLimit(2).help(m.displayName)
-                                    .foregroundStyle(!store.showDiscord && m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
+                                    .foregroundStyle(!store.showModule && m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
                                 Spacer(minLength: 0)
                                 if store.refreshing == m.id { ProgressView().controlSize(.mini) }
                                 else if m.unreadPosts + m.unreadBugs > 0 { CountBadge(n: m.unreadPosts + m.unreadBugs) }
@@ -197,6 +198,21 @@ struct ModSidebar: View {
                                 if store.discordError != nil {
                                     Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                                 }
+                            }
+                        }
+                    }
+                    Divider().overlay(Socle.C.border).padding(.vertical, Socle.M.space1)
+                    ListRow(selected: store.showWatch, unread: false) { store.selectWatch() } content: {
+                        HStack(spacing: Socle.M.space1_5) {
+                            Text(L.t("watch.tab")).socle(Socle.T.labelStrong)
+                                .foregroundStyle(store.showWatch ? Socle.C.warning : Socle.C.textStrong)
+                            Spacer(minLength: 0)
+                            if store.watchBusy { ProgressView().controlSize(.mini) }
+                        }
+                        HStack(spacing: Socle.M.space1_5) {
+                            Text(L.t("watch.count", store.watchItems.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                            if store.watchItems.contains(where: { $0.error != nil }) {
+                                Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                             }
                         }
                     }

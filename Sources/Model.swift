@@ -113,6 +113,8 @@ struct AppData: Codable {
     /// Réponses de Jev déjà obtenues (empreinte de la question → probabilité « oui »).
     var jevCache: [String: Double]?
     var jevUsage: JevUsage?
+    /// Veille : produits suivis (releases GitHub, fiches Nexus).
+    var watch: [WatchItem]?
 }
 
 /// Ancien format (un seul mod, réglages dans la config) : lu une fois pour migrer.

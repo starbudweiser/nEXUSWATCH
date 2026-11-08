@@ -17,6 +17,7 @@ final class Store: ObservableObject {
     @Published var discord = DiscordStorage.load()
     @Published var discordBusy = false
     @Published var discordError: String?
+    @Published var watchBusy = false
     @Published var hasDiscordToken = false
     let fetcher = NexusFetcher()
     private var timer: Timer?
@@ -110,11 +111,13 @@ final class Store: ObservableObject {
     /// Discord se lit en parallèle de la file Nexus : simple requête réseau, sans le lecteur de page partagé.
     func refreshAll() async {
         async let discordDone: Void = refreshDiscord()
+        async let watchDone: Void = checkWatchIfStale()
         await refresh(data.mods.map(\.id))
         await discordDone
+        await watchDone
     }
     func refreshCurrent() async {
-        if showDiscord { await refreshDiscord() } else if hasMods { await refresh([state.id]) }
+        if showWatch { await checkWatch() } else if showDiscord { await refreshDiscord() } else if hasMods { await refresh([state.id]) }
     }
 
     /// Met les mods en file : la page de chaque mod est lue l'un après l'autre.

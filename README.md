@@ -30,6 +30,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - **New in 1.1 — AI agent support** (optional, off by default): copy or export the data, any OpenAI-compatible API (OpenAI, Mistral, OpenRouter, Ollama, LM Studio), Anthropic Claude, or the built-in MCP server for Claude Code, Claude Desktop or Cursor. Per-bug audit included.
 - **New in 1.1 — Jev sorting** (optional, TypeSafe API key): flags posts that report a bug or ask for a feature, and spots those already in the bug tracker.
 - **Stats**: endorsements, downloads, unique downloads, version and 24-hour progress.
+- **Watch**: follows the latest release of other tools and mods (GitHub repositories, Nexus pages) and notifies you when a new version comes out.
 - **Posts**: latest threads with their replies, "New" badge, your own messages marked as read.
 - **Bugs**: every report with its Nexus status and full messages, local tracking (To triage → Fix released), test notes and **Copy for a fix** (Markdown report to the clipboard).
 - **Files**: downloads per file and Nexus virus-scan status (quarantined files flagged).
@@ -133,6 +134,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Nouveau en 1.1 — support d'agent IA** (facultatif, désactivé par défaut) : copie ou export des données, toute API compatible OpenAI (OpenAI, Mistral, OpenRouter, Ollama, LM Studio), Anthropic Claude, ou le serveur MCP intégré pour Claude Code, Claude Desktop ou Cursor. Audit bug par bug inclus.
 - **Nouveau en 1.1 — tri Jev** (facultatif, clé API TypeSafe) : repère les posts qui signalent un bug ou demandent une fonction, et ceux déjà présents dans le tracker.
 - **Stats** : endorsements, téléchargements, DL uniques, version et progression sur 24 h.
+- **Veille** : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus) et vous prévient à chaque nouvelle version.
 - **Posts** : derniers fils avec leurs réponses, badge « Nouveau », vos propres messages lus d'office.
 - **Bugs** : tous les rapports avec leur statut Nexus et leurs messages complets, suivi local (À trier → Correctif publié), notes de test et **Copier pour correctif** (rapport Markdown dans le presse-papiers).
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
