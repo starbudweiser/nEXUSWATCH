@@ -7,7 +7,7 @@ Notes de version / release notes (EN + FR). Translations in IT and ES: see the N
 **English**
 
 - Guided tour in 8 steps, spoken in your language, at first launch and from the Help menu.
-- Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages), with history and notes, and notifies you when a new version comes out.
+- Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages, any web page such as ENB Series), with history and notes, and notifies you when a new version comes out.
 - "About nEXUSWATCH" window redesigned: version, authors and licence, in all four languages.
 - Shorter mod names in the header and the list (full name on hover).
 - Update dialogs are centred on the app window; clearer message when an operation is running.
@@ -16,7 +16,7 @@ Notes de version / release notes (EN + FR). Translations in IT and ES: see the N
 **Français**
 
 - Visite guidée en 8 étapes, commentée dans votre langue, au premier lancement et depuis le menu Aide.
-- Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus), avec historique et notes, et vous prévient à chaque nouvelle version.
+- Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus, toute page web comme ENB Series), avec historique et notes, et vous prévient à chaque nouvelle version.
 - Fenêtre « À propos de nEXUSWATCH » refaite : version, auteurs et licence, dans les quatre langues.
 - Noms de mods raccourcis dans l'en-tête et la liste (nom complet au survol).
 - Fenêtres de mise à jour centrées sur l'appli ; message plus clair quand une opération est en cours.

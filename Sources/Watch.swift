@@ -141,15 +141,21 @@ extension Watcher {
     /// Page web : le plus haut numéro de version écrit dans le texte (« Version 0.505 », « v0.505 »), sinon une empreinte
     /// du texte, qui ne signale qu'un changement de contenu.
     static func web(_ ref: String) async -> Result<WatchSnapshot, WatchError> {
-        // Une adresse http est lue en https : macOS refuse les connexions non chiffrées (App Transport Security).
-        guard var parts = URLComponents(string: ref) else { return .failure(WatchError(message: L.t("watch.invalid"))) }
+        // Une adresse http est d'abord tentée en https ; le http d'origine (autorisé dans l'Info.plist) ne sert que si elle échoue.
+        guard let original = URL(string: ref), var parts = URLComponents(string: ref) else {
+            return .failure(WatchError(message: L.t("watch.invalid")))
+        }
         if parts.scheme?.lowercased() == "http" { parts.scheme = "https" }
-        guard let url = parts.url else { return .failure(WatchError(message: L.t("watch.invalid"))) }
-        var r = URLRequest(url: url)
-        // Requête de lecteur ordinaire, sous le nom de l'appli : certains serveurs refusent une demande sans type de contenu accepté.
-        r.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
-        r.setValue("en", forHTTPHeaderField: "Accept-Language")
-        switch await send(r) {
+        let candidates = [parts.url, original].compactMap { $0 }
+        var result: Result<Data, WatchError> = .failure(WatchError(message: L.t("watch.invalid")))
+        for url in candidates where (try? result.get()) == nil {
+            var r = URLRequest(url: url)
+            // Requête de lecteur ordinaire, sous le nom de l'appli : certains serveurs refusent une demande sans type de contenu accepté.
+            r.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
+            r.setValue("en", forHTTPHeaderField: "Accept-Language")
+            result = await send(r)
+        }
+        switch result {
         case .failure(let e): return .failure(e)
         case .success(let d):
             guard let raw = String(data: d, encoding: .utf8) ?? String(data: d, encoding: .isoLatin1) else {

@@ -30,7 +30,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - **New in 1.1 — AI agent support** (optional, off by default): copy or export the data, any OpenAI-compatible API (OpenAI, Mistral, OpenRouter, Ollama, LM Studio), Anthropic Claude, or the built-in MCP server for Claude Code, Claude Desktop or Cursor. Per-bug audit included.
 - **New in 1.1 — Jev sorting** (optional, TypeSafe API key): flags posts that report a bug or ask for a feature, and spots those already in the bug tracker.
 - **Stats**: endorsements, downloads, unique downloads, version and 24-hour progress.
-- **Watch**: follows the latest release of other tools and mods (GitHub repositories, Nexus pages), with history and notes, and notifies you when a new version comes out.
+- **Watch**: follows the latest release of other tools and mods (GitHub repositories, Nexus pages, any web page), with history and notes, and notifies you when a new version comes out.
 - **Posts**: latest threads with their replies, "New" badge, your own messages marked as read.
 - **Bugs**: every report with its Nexus status and full messages, local tracking (To triage → Fix released), test notes and **Copy for a fix** (Markdown report to the clipboard).
 - **Files**: downloads per file and Nexus virus-scan status (quarantined files flagged).
@@ -40,7 +40,7 @@ Publishing a mod means checking its page again and again for new comments, bug r
 ### What's new in 2.0.0
 
 - Guided tour in 8 steps, spoken in your language, at first launch and from the Help menu.
-- Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages), with history and notes, and notifies you when a new version comes out.
+- Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages, any web page such as ENB Series), with history and notes, and notifies you when a new version comes out.
 - "About nEXUSWATCH" window redesigned: version, authors and licence, in all four languages.
 - Shorter mod names in the header and the list (full name on hover).
 - Update dialogs are centred on the app window; clearer message when an operation is running.
@@ -99,7 +99,7 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. Native
 4. Add your other mods with **+** in the sidebar.
 5. Open the **AI audit** tab for the priority plan: **A4 reading** prints it or saves it as PDF, **Copy fix prompt** gives the brief for your coding agent.
 6. Optional: in the settings, turn on **AI agent support** and pick a method.
-7. To follow other tools and mods, open **Watch** in the sidebar and paste a GitHub repository or a Nexus mod page; **Check** reads their latest version.
+7. To follow other tools and mods, open **Watch** in the sidebar and paste a GitHub repository, a Nexus mod page or any web page; **Check** reads their latest version.
 8. Replay the **guided tour** at any time from the **Help** menu.
 
 ### FAQ
@@ -112,7 +112,7 @@ Choose **MCP server** in the settings and copy the command shown, for example `c
 
 ### Privacy
 
-Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH). The optional AI features send the mod's public posts and bug reports only to the service you choose, with your own API key (stored in the macOS Keychain); Jev sorting sends the post texts to TypeSafe. With the MCP server or the export, nothing leaves your Mac unless your agent asks for it. The optional **Discord** module reads, with a read-only bot you create yourself, the threads and messages of your own server's forums; the bot token is stored in the macOS Keychain and the messages stay on your Mac (discord.json, same folder; threads inactive for 90 days are purged, and a button erases everything). Nothing is written to Discord, and nothing from Discord is sent anywhere. The **Watch** reads only public data: the GitHub API (latest release of each repository you add) and the Nexus Mods GraphQL API, without account or key; the list stays on your Mac.
+Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH). The optional AI features send the mod's public posts and bug reports only to the service you choose, with your own API key (stored in the macOS Keychain); Jev sorting sends the post texts to TypeSafe. With the MCP server or the export, nothing leaves your Mac unless your agent asks for it. The optional **Discord** module reads, with a read-only bot you create yourself, the threads and messages of your own server's forums; the bot token is stored in the macOS Keychain and the messages stay on your Mac (discord.json, same folder; threads inactive for 90 days are purged, and a button erases everything). Nothing is written to Discord, and nothing from Discord is sent anywhere. The **Watch** reads only public data: the GitHub API (latest release of each repository you add), the Nexus Mods GraphQL API and the web pages you add, without account or key; the list stays on your Mac.
 
 ### Building from source
 
@@ -144,7 +144,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Nouveau en 1.1 — support d'agent IA** (facultatif, désactivé par défaut) : copie ou export des données, toute API compatible OpenAI (OpenAI, Mistral, OpenRouter, Ollama, LM Studio), Anthropic Claude, ou le serveur MCP intégré pour Claude Code, Claude Desktop ou Cursor. Audit bug par bug inclus.
 - **Nouveau en 1.1 — tri Jev** (facultatif, clé API TypeSafe) : repère les posts qui signalent un bug ou demandent une fonction, et ceux déjà présents dans le tracker.
 - **Stats** : endorsements, téléchargements, DL uniques, version et progression sur 24 h.
-- **Veille** : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus), avec historique et notes, et vous prévient à chaque nouvelle version.
+- **Veille** : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus, toute page web), avec historique et notes, et vous prévient à chaque nouvelle version.
 - **Posts** : derniers fils avec leurs réponses, badge « Nouveau », vos propres messages lus d'office.
 - **Bugs** : tous les rapports avec leur statut Nexus et leurs messages complets, suivi local (À trier → Correctif publié), notes de test et **Copier pour correctif** (rapport Markdown dans le presse-papiers).
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
@@ -154,7 +154,7 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 ### Nouveautés de la 2.0.0
 
 - Visite guidée en 8 étapes, commentée dans votre langue, au premier lancement et depuis le menu Aide.
-- Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus), avec historique et notes, et vous prévient à chaque nouvelle version.
+- Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus, toute page web comme ENB Series), avec historique et notes, et vous prévient à chaque nouvelle version.
 - Fenêtre « À propos de nEXUSWATCH » refaite : version, auteurs et licence, dans les quatre langues.
 - Noms de mods raccourcis dans l'en-tête et la liste (nom complet au survol).
 - Fenêtres de mise à jour centrées sur l'appli ; message plus clair quand une opération est en cours.
@@ -213,7 +213,7 @@ Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus réce
 4. Ajoutez vos autres mods avec **+** dans la barre latérale.
 5. Ouvrez l'onglet **Audit IA** pour le plan par priorité : **Lecture A4** l'imprime ou l'enregistre en PDF, **Copier le prompt de correction** donne la consigne pour votre agent de développement.
 6. Facultatif : dans les réglages, activez le **support agent IA** et choisissez une méthode.
-7. Pour suivre d'autres outils et mods, ouvrez **Veille** dans la barre latérale et collez un dépôt GitHub ou une page de mod Nexus ; **Vérifier** relève leur dernière version.
+7. Pour suivre d'autres outils et mods, ouvrez **Veille** dans la barre latérale et collez un dépôt GitHub, une page de mod Nexus ou une page web ; **Vérifier** relève leur dernière version.
 8. Relancez la **visite guidée** à tout moment depuis le menu **Aide**.
 
 ### Questions fréquentes
@@ -226,7 +226,7 @@ Choisissez **Serveur MCP** dans les réglages et copiez la commande affichée, p
 
 ### Confidentialité
 
-Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont lues, sans compte ni clé API. L'état lu, le suivi des bugs et les notes restent sur votre Mac (~/Library/Application Support/nEXUSWATCH). Les fonctions IA facultatives n'envoient les posts et rapports de bugs publics du mod qu'au service que vous choisissez, avec votre propre clé API (rangée dans le trousseau macOS) ; le tri Jev envoie le texte des posts à TypeSafe. Avec le serveur MCP ou l'export, rien ne quitte votre Mac sans que votre agent le demande. Le module facultatif **Discord** lit, avec un robot en lecture seule que vous créez vous-même, les fils et messages des forums de votre propre serveur ; le jeton du robot est rangé dans le trousseau macOS et les messages restent sur votre Mac (discord.json, même dossier ; les fils inactifs depuis 90 jours sont purgés, et un bouton efface tout). Rien n'est écrit sur Discord et rien de Discord n'est envoyé ailleurs. La **Veille** ne lit que des données publiques : l'API GitHub (dernière release de chaque dépôt ajouté) et l'API GraphQL de Nexus Mods, sans compte ni clé ; la liste reste sur votre Mac.
+Seules les pages publiques du mod et l'API GraphQL publique de Nexus Mods sont lues, sans compte ni clé API. L'état lu, le suivi des bugs et les notes restent sur votre Mac (~/Library/Application Support/nEXUSWATCH). Les fonctions IA facultatives n'envoient les posts et rapports de bugs publics du mod qu'au service que vous choisissez, avec votre propre clé API (rangée dans le trousseau macOS) ; le tri Jev envoie le texte des posts à TypeSafe. Avec le serveur MCP ou l'export, rien ne quitte votre Mac sans que votre agent le demande. Le module facultatif **Discord** lit, avec un robot en lecture seule que vous créez vous-même, les fils et messages des forums de votre propre serveur ; le jeton du robot est rangé dans le trousseau macOS et les messages restent sur votre Mac (discord.json, même dossier ; les fils inactifs depuis 90 jours sont purgés, et un bouton efface tout). Rien n'est écrit sur Discord et rien de Discord n'est envoyé ailleurs. La **Veille** ne lit que des données publiques : l'API GitHub (dernière release de chaque dépôt ajouté), l'API GraphQL de Nexus Mods et les pages web que vous ajoutez, sans compte ni clé ; la liste reste sur votre Mac.
 
 ### Compiler depuis les sources
 
