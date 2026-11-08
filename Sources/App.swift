@@ -41,6 +41,8 @@ struct NexusWatchApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     // Le splash part avant que SwiftUI ouvre la fenêtre principale, pour pouvoir la retenir jusqu'à t = 2 s.
     func applicationWillFinishLaunching(_ notification: Notification) {
+        // Règle Socle : pas de position ni de taille restaurées, la fenêtre s'ouvre à sa taille par défaut, centrée (voir gate du splash).
+        UserDefaults.standard.removeObject(forKey: "NSWindow Frame main")
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         Socle.brand("nEXUSWATCH", color: Color(red: 0.055, green: 0.647, blue: 0.914))  // « n » dans le bleu du logo
         Splash.shared.start(Splash.Config(

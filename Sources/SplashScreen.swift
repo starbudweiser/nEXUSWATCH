@@ -101,6 +101,7 @@ final class Splash {
         guard panel != nil, !mainShown, gated.insert(ObjectIdentifier(window)).inserted else { return }
         if mainOpenTime { reveal(window); return }
         trace("fenêtre prête, retenue (déjà visible : \(window.isVisible))")
+        window.socleCenter()
         window.alphaValue = 0
         pending = window
     }
