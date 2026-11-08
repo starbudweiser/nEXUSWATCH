@@ -18,6 +18,7 @@ for s in 16 32 128 256 512; do
 done
 iconutil -c icns build/icon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+[ -d Resources/tour ] && ditto Resources/tour "$APP/Contents/Resources/tour"  # voix de la visite guidée
 rm -rf build
 # Developer ID (Team ID stable) : le Trousseau ne redemande plus le mot de passe après une recompilation (voir sign_app.sh).
 SIGN_DEVELOPER_ID=1 "$(cd .. && pwd)/_tools/sign_app.sh" "$APP"

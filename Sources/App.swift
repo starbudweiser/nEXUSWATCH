@@ -28,6 +28,9 @@ struct NexusWatchApp: App {
             CommandGroup(replacing: .appInfo) {
                 Button(L.t("about.menu")) { About.show() }
             }
+            CommandGroup(replacing: .help) {
+                Button(L.t("tour.menu")) { Tour.shared.start(store) }
+            }
             CommandGroup(after: .newItem) {
                 Button(L.t("action.refresh").capitalized) { Task { await store.refreshCurrent() } }
                     .keyboardShortcut("r")
@@ -102,6 +105,8 @@ struct RootView: View {
         .background(HiddenWebView(webView: store.fetcher.webView).frame(width: 1, height: 1))
         .sheet(isPresented: $settings) { SettingsView().environmentObject(store) }
         .sheet(isPresented: $adding) { AddModView().environmentObject(store) }
+        .tourOverlay()
+        .onAppear { Tour.shared.startIfFirstRun(store) }
     }
 
     private var main: some View {
@@ -117,7 +122,7 @@ struct RootView: View {
                 Callout(kind: .warning, text: e)
                     .padding(.horizontal, Socle.M.space3).padding(.bottom, Socle.M.space3)
             }
-            TabsBar(tab: $tab)
+            TabsBar(tab: $tab).tourAnchor(.tabs)
             Divider().overlay(Socle.C.border)
             Group {
                 switch tab {
@@ -218,11 +223,13 @@ struct ModSidebar: View {
                             }
                         }
                     }
+                    .tourAnchor(.watch)
                 }
             }
         }
         .frame(width: 230)
         .background(Socle.C.surface)
+        .tourAnchor(.sidebar)
         .confirmationDialog(L.t("mods.remove.confirm", removing?.displayName ?? ""),
                             isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } })) {
             Button(L.t("mods.remove"), role: .destructive) { if let m = removing { store.removeMod(m.id) } }
@@ -294,6 +301,7 @@ struct HeaderBar: View {
             Button { settings = true } label: { Image(systemName: "gearshape") }
                 .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
                 .help(L.t("action.settings"))
+                .tourAnchor(.settings)
             Button(L.t("action.refresh")) { Task { await store.refreshCurrent() } }
                 .buttonStyle(SocleButtonStyle(.primary, height: Socle.M.sizeControl)).fixedSize()
                 .disabled(store.loading)
@@ -323,6 +331,7 @@ struct StatsRow: View {
                      note: s?.updatedAt.map { L.t("stat.updated", L.ago($0)) })
         }
         .padding(Socle.M.space3)
+        .tourAnchor(.stats)
     }
 }
 
