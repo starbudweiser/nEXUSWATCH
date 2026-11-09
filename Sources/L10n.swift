@@ -32,6 +32,7 @@ enum L {
     private static let tables: [String: [String: String]] = ["fr": fr, "en": en, "it": it, "es": es]
 
     private static let fr: [String: String] = [
+        "files.archived": "Afficher les anciennes versions archivées (%ld)",
         "upd.title": "Mises à jour",
         "upd.auto": "Installer automatiquement les mises à jour",
         "upd.auto.note": "Une fois par jour, nEXUSWATCH cherche une nouvelle version sur GitHub, vérifie sa signature et sa notarisation Apple, l'installe puis se relance, jamais pendant une vérification. Décoché, il vous la propose.",
@@ -332,6 +333,7 @@ enum L {
     ]
 
     private static let en: [String: String] = [
+        "files.archived": "Show old archived versions (%ld)",
         "upd.title": "Updates",
         "upd.auto": "Install updates automatically",
         "upd.auto.note": "Once a day, nEXUSWATCH looks for a new version on GitHub, checks its signature and Apple notarization, installs it and relaunches, never during a check. Unchecked, it offers it to you.",
@@ -632,6 +634,7 @@ enum L {
     ]
 
     private static let it: [String: String] = [
+        "files.archived": "Mostra le vecchie versioni archiviate (%ld)",
         "upd.title": "Aggiornamenti",
         "upd.auto": "Installa gli aggiornamenti automaticamente",
         "upd.auto.note": "Una volta al giorno, nEXUSWATCH cerca una nuova versione su GitHub, ne verifica la firma e l'autenticazione Apple, la installa e si riavvia, mai durante un controllo. Se disattivato, te la propone.",
@@ -932,6 +935,7 @@ enum L {
     ]
 
     private static let es: [String: String] = [
+        "files.archived": "Mostrar las versiones antiguas archivadas (%ld)",
         "upd.title": "Actualizaciones",
         "upd.auto": "Instalar las actualizaciones automáticamente",
         "upd.auto.note": "Una vez al día, nEXUSWATCH busca una nueva versión en GitHub, comprueba su firma y su notarización de Apple, la instala y se reinicia, nunca durante una comprobación. Desmarcado, te la propone.",

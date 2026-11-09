@@ -830,11 +830,28 @@ struct BugAuditBox: View {
 struct FilesView: View {
     @EnvironmentObject var store: Store
     @State private var sortOrder = [KeyPathComparator(\ModFileStat.total, order: .reverse)]
+    /// Les anciennes versions (archivées sur Nexus) sont masquées par défaut : seul ce qui est proposé au téléchargement compte.
+    @AppStorage("files.showArchived") private var showArchived = false
 
     var body: some View {
-        let files = store.state.stats?.files ?? []
-        if files.isEmpty { EmptyState(text: L.t("files.empty")) }
-        else {
+        let all = store.state.stats?.files ?? []
+        let archived = all.filter { $0.category.uppercased() == "ARCHIVED" }.count
+        let files = showArchived ? all : all.filter { $0.category.uppercased() != "ARCHIVED" }
+        VStack(spacing: 0) {
+            if archived > 0 {
+                HStack {
+                    Toggle(L.t("files.archived", archived), isOn: $showArchived).socle(Socle.T.body)
+                    Spacer()
+                }
+                .padding(.horizontal, Socle.M.space3).padding(.vertical, Socle.M.space2)
+                Divider().overlay(Socle.C.borderSubtle)
+            }
+            if files.isEmpty { EmptyState(text: L.t("files.empty")) }
+            else { table(files) }
+        }
+    }
+
+    private func table(_ files: [ModFileStat]) -> some View {
             Table(files.sorted(using: sortOrder), sortOrder: $sortOrder) {
                 TableColumn(L.t("files.name"), value: \.name, comparator: .localizedStandard) { f in
                     VStack(alignment: .leading, spacing: 2) {
@@ -855,7 +872,6 @@ struct FilesView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Socle.C.bg)
-        }
     }
 }
 
