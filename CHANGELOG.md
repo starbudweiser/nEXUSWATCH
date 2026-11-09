@@ -2,6 +2,16 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
+## 2.0.1
+
+**English**
+
+- Reorder your mods in the sidebar by drag and drop.
+
+**Français**
+
+- Réorganisez vos mods dans la barre latérale par glisser-déposer.
+
 ## 2.0.0
 
 **English**

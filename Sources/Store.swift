@@ -67,6 +67,14 @@ final class Store: ObservableObject {
         return nil
     }
 
+    /// Place le mod `id` à la position du mod `target` (glisser-déposer dans la barre latérale).
+    func moveMod(_ id: String, onto target: String) {
+        guard let from = data.mods.firstIndex(where: { $0.id == id }),
+              let to = data.mods.firstIndex(where: { $0.id == target }), from != to else { return }
+        data.mods.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        save()
+    }
+
     func removeMod(_ id: String) {
         data.mods.removeAll { $0.id == id }
         errors[id] = nil; aiErrors[id] = nil

@@ -145,6 +145,8 @@ struct ModSidebar: View {
     @EnvironmentObject var store: Store
     @Binding var adding: Bool
     @State private var removing: ModState?
+    /// Mod en cours de glisser-déposer (réorganisation de la liste).
+    @State private var dragging: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -163,6 +165,7 @@ struct ModSidebar: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(store.data.mods) { m in
+                        VStack(spacing: 0) {  // ListRow renvoie deux vues : le glisser-déposer porte sur la ligne entière
                         ListRow(selected: !store.showModule && m.id == store.state.id, unread: m.unreadPosts + m.unreadBugs > 0) {
                             store.select(m.id)
                         } content: {
@@ -187,6 +190,9 @@ struct ModSidebar: View {
                             Button(L.t("action.open")) { NSWorkspace.shared.open(m.config.pageURL) }
                             Button(L.t("mods.remove")) { removing = m }
                         }
+                        }
+                        .onDrag { dragging = m.id; return NSItemProvider(object: m.id as NSString) }
+                        .onDrop(of: [.text], delegate: ModDropDelegate(target: m.id, store: store, dragging: $dragging))
                     }
                     if store.discordVisible {
                         Divider().overlay(Socle.C.border).padding(.vertical, Socle.M.space1)
@@ -232,6 +238,8 @@ struct ModSidebar: View {
         .frame(width: 230)
         .background(Socle.C.surface)
         .tourAnchor(.sidebar)
+        // Lâché hors d'une ligne de mod : fin du glisser-déposer (l'ordre est déjà enregistré).
+        .onDrop(of: [.text], isTargeted: nil) { _ in dragging = nil; return true }
         .confirmationDialog(L.t("mods.remove.confirm", removing?.displayName ?? ""),
                             isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } })) {
             Button(L.t("mods.remove"), role: .destructive) { if let m = removing { store.removeMod(m.id) } }
@@ -1200,5 +1208,26 @@ struct SettingsView: View {
             Text(label).socle(Socle.T.label).foregroundStyle(Socle.C.textMuted)
             input().textFieldStyle(.roundedBorder).socle(Socle.T.mono)
         }
+    }
+}
+
+/// Réorganisation des mods à la souris : la ligne glissée prend la place de celle survolée, l'ordre est enregistré aussitôt.
+struct ModDropDelegate: DropDelegate {
+    let target: String
+    let store: Store
+    @Binding var dragging: String?
+
+    func dropEntered(info: DropInfo) {
+        MainActor.assumeIsolated {
+            guard let id = dragging, id != target else { return }
+            withAnimation(.easeInOut(duration: 0.15)) { store.moveMod(id, onto: target) }
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: .move) }
+
+    func performDrop(info: DropInfo) -> Bool {
+        MainActor.assumeIsolated { dragging = nil }
+        return true
     }
 }

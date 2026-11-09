@@ -37,6 +37,10 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
 
+### What's new in 2.0.1
+
+- Reorder your mods in the sidebar by drag and drop.
+
 ### What's new in 2.0.0
 
 - Guided tour in 8 steps, spoken in your language, at first launch and from the Help menu.
@@ -96,7 +100,7 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. Native
 1. Open nEXUSWATCH, click the gear icon and paste the URL of your mod page.
 2. Pick the check interval and turn on notifications.
 3. Read new posts and bugs in their tabs; **Reply on Nexus** opens the right page.
-4. Add your other mods with **+** in the sidebar.
+4. Add your other mods with **+** in the sidebar; drag them to change their order.
 5. Open the **AI audit** tab for the priority plan: **A4 reading** prints it or saves it as PDF, **Copy fix prompt** gives the brief for your coding agent.
 6. Optional: in the settings, turn on **AI agent support** and pick a method.
 7. To follow other tools and mods, open **Watch** in the sidebar and paste a GitHub repository, a Nexus mod page or any web page; **Check** reads their latest version.
@@ -150,6 +154,10 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
+
+### Nouveautés de la 2.0.1
+
+- Réorganisez vos mods dans la barre latérale par glisser-déposer.
 
 ### Nouveautés de la 2.0.0
 
@@ -210,7 +218,7 @@ Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 14 Sonoma** ou plus réce
 1. Ouvrez nEXUSWATCH, cliquez sur la roue dentée et collez l'URL de la page de votre mod.
 2. Choisissez l'intervalle de vérification et activez les notifications.
 3. Lisez les nouveaux posts et bugs dans leurs onglets ; **Répondre sur Nexus** ouvre la bonne page.
-4. Ajoutez vos autres mods avec **+** dans la barre latérale.
+4. Ajoutez vos autres mods avec **+** dans la barre latérale ; faites-les glisser pour changer leur ordre.
 5. Ouvrez l'onglet **Audit IA** pour le plan par priorité : **Lecture A4** l'imprime ou l'enregistre en PDF, **Copier le prompt de correction** donne la consigne pour votre agent de développement.
 6. Facultatif : dans les réglages, activez le **support agent IA** et choisissez une méthode.
 7. Pour suivre d'autres outils et mods, ouvrez **Veille** dans la barre latérale et collez un dépôt GitHub, une page de mod Nexus ou une page web ; **Vérifier** relève leur dernière version.
