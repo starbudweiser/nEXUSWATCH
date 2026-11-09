@@ -136,7 +136,7 @@ struct RootView: View {
         }
     }
 
-    private var quarantined: Int? { store.state.stats?.files.filter { $0.scan == "QUARANTINED" }.count }
+    private var quarantined: Int? { store.state.stats?.files.filter(\.blocked).count }
 }
 
 // MARK: Mods suivis
@@ -181,7 +181,7 @@ struct ModSidebar: View {
                                 if store.errors[m.id] != nil {
                                     Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                                 }
-                                if m.stats?.files.contains(where: { $0.scan == "QUARANTINED" }) == true {
+                                if m.stats?.files.contains(where: \.blocked) == true {
                                     Image(systemName: "exclamationmark.octagon").foregroundStyle(Socle.C.danger)
                                 }
                             }

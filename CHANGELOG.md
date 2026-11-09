@@ -2,6 +2,16 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
+## 2.0.2
+
+**English**
+
+- The quarantine alert only counts files still offered for download: old archived versions no longer trigger it.
+
+**Français**
+
+- L'alerte de quarantaine ne compte plus que les fichiers proposés au téléchargement : les anciennes versions archivées ne la déclenchent plus.
+
 ## 2.0.1
 
 **English**

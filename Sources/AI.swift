@@ -154,7 +154,7 @@ enum AIDigest {
             s += "- Version: \(st.version)\(st.updatedAt.map { " (updated \(L.date($0)))" } ?? "")\n"
             s += "- Endorsements: \(st.endorsements)\(delta(\.endorsements)) · Downloads: \(st.downloads)\(delta(\.downloads))"
             s += " · Unique downloads: \(st.uniqueDownloads)\(delta(\.unique))\n"
-            let quarantined = st.files.filter { $0.scan == "QUARANTINED" }
+            let quarantined = st.files.filter(\.blocked)
             if !quarantined.isEmpty { s += "- Files quarantined by the Nexus virus scan: \(quarantined.map(\.name).joined(separator: ", "))\n" }
         }
         return s

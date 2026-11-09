@@ -37,6 +37,10 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - Automatic check (5 min to 3 h), macOS notification and Dock badge; keeps running when the window is closed.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language).
 
+### What's new in 2.0.2
+
+- The quarantine alert only counts files still offered for download: old archived versions no longer trigger it.
+
 ### What's new in 2.0.1
 
 - Reorder your mods in the sidebar by drag and drop.
@@ -154,6 +158,10 @@ Publier un mod, c'est retourner sans cesse sur sa page pour guetter un commentai
 - **Fichiers** : téléchargements par fichier et état du contrôle antivirus Nexus (quarantaine signalée).
 - Vérification automatique (5 min à 3 h), notification macOS et badge du Dock ; l'appli continue fenêtre fermée.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac).
+
+### Nouveautés de la 2.0.2
+
+- L'alerte de quarantaine ne compte plus que les fichiers proposés au téléchargement : les anciennes versions archivées ne la déclenchent plus.
 
 ### Nouveautés de la 2.0.1
 

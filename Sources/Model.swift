@@ -26,6 +26,8 @@ struct ModFileStat: Codable, Identifiable {
     var name, version, category, scan: String
     var total, unique: Int
     var date: Date
+    /// En quarantaine et proposé au téléchargement : un fichier archivé (ancienne version) ne bloque plus personne.
+    var blocked: Bool { scan == "QUARANTINED" && category.uppercased() != "ARCHIVED" }
 }
 
 struct ModStats: Codable {
