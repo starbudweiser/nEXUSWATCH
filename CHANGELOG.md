@@ -2,31 +2,16 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
-## 2.0.2
-
-**English**
-
-- The quarantine alert only counts files still offered for download: old archived versions no longer trigger it.
-
-**Français**
-
-- L'alerte de quarantaine ne compte plus que les fichiers proposés au téléchargement : les anciennes versions archivées ne la déclenchent plus.
-
-## 2.0.1
-
-**English**
-
-- Reorder your mods in the sidebar by drag and drop.
-
-**Français**
-
-- Réorganisez vos mods dans la barre latérale par glisser-déposer.
-
 ## 2.0.0
 
 **English**
 
 - Guided tour in 8 steps, spoken in your language, at first launch and from the Help menu.
+- Automatic updates: "Check for Updates…" in the app menu, and an Updates section in the settings (install automatically, check now, About).
+- Alerts are centred on the app window, with their icon and text centred.
+- The Files tab hides old archived versions by default; a box shows them again.
+- Reorder your mods in the sidebar by drag and drop.
+- The quarantine alert only counts files still offered for download: old archived versions no longer trigger it.
 - Watch: follows the latest release of other tools and mods (GitHub repositories, Nexus pages, any web page such as ENB Series), with history and notes, and notifies you when a new version comes out.
 - "About nEXUSWATCH" window redesigned: version, authors and licence, in all four languages.
 - Shorter mod names in the header and the list (full name on hover).
@@ -36,6 +21,11 @@ Notes de version / release notes (EN + FR). Translations in IT and ES: see the N
 **Français**
 
 - Visite guidée en 8 étapes, commentée dans votre langue, au premier lancement et depuis le menu Aide.
+- Mise à jour automatique : « Rechercher les mises à jour… » dans le menu de l'appli, et une section Mises à jour dans les réglages (installer automatiquement, rechercher maintenant, À propos).
+- Alertes centrées sur la fenêtre de l'appli, icône et textes centrés.
+- L'onglet Fichiers masque par défaut les anciennes versions archivées ; une case les réaffiche.
+- Réorganisez vos mods dans la barre latérale par glisser-déposer.
+- L'alerte de quarantaine ne compte plus que les fichiers proposés au téléchargement : les anciennes versions archivées ne la déclenchent plus.
 - Veille : suit la dernière version d'autres outils et mods (dépôts GitHub, pages Nexus, toute page web comme ENB Series), avec historique et notes, et vous prévient à chaque nouvelle version.
 - Fenêtre « À propos de nEXUSWATCH » refaite : version, auteurs et licence, dans les quatre langues.
 - Noms de mods raccourcis dans l'en-tête et la liste (nom complet au survol).
