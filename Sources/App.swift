@@ -27,6 +27,8 @@ struct NexusWatchApp: App {
         .commands {
             CommandGroup(replacing: .appInfo) {
                 Button(L.t("about.menu")) { About.show() }
+                // Dans les commandes SwiftUI : une entrée ajoutée après coup au menu disparaît quand SwiftUI le reconstruit.
+                Button(Updater.text("menu", lang: L.lang)) { UpdateEngine.shared.checkNow() }
             }
             CommandGroup(replacing: .help) {
                 Button(L.t("tour.menu")) { Tour.shared.start(store) }
@@ -57,8 +59,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Socle.apply()
         UpdateEngine.shared.configure(repo: "nEXUSWATCH", lang: { L.lang })
+        UpdateEngine.shared.autoInstall = { UpdateSettings.autoInstall }
         UpdateEngine.shared.start()  // nouvelle version ? (au plus une fois par jour)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { UpdateEngine.shared.installAppMenuItem() }
     }
     // La fenêtre fermée, l'appli continue de vérifier en arrière-plan (badge du Dock et notifications).
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
@@ -1153,6 +1155,8 @@ struct SettingsView: View {
             Toggle(L.t("settings.notify"), isOn: $notify).socle(Socle.T.body)
             Text(L.t("settings.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
             Divider().overlay(Socle.C.border)
+            UpdateSettings()
+            Divider().overlay(Socle.C.border)
             aiSection
             Divider().overlay(Socle.C.border)
             DiscordSettings(applicationId: $discordAppId, token: $discordToken)
@@ -1229,5 +1233,44 @@ struct ModDropDelegate: DropDelegate {
     func performDrop(info: DropInfo) -> Bool {
         MainActor.assumeIsolated { dragging = nil }
         return true
+    }
+}
+
+/// Réglages « Mises à jour » : installation automatique, recherche à la demande, version installée et « À propos ».
+struct UpdateSettings: View {
+    static var autoInstall: Bool {
+        UserDefaults.standard.object(forKey: "updater.autoInstall") as? Bool ?? true
+    }
+    @ObservedObject private var engine = UpdateEngine.shared
+    @State private var auto = UpdateSettings.autoInstall
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Socle.M.space2) {
+            Text(L.t("upd.title").uppercased()).socle(Socle.T.eyebrow).foregroundStyle(Socle.C.textSubtle)
+            Toggle(L.t("upd.auto"), isOn: $auto).socle(Socle.T.body)
+                .onChange(of: auto) { _, v in UserDefaults.standard.set(v, forKey: "updater.autoInstall") }
+            Text(L.t("upd.auto.note")).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: Socle.M.space2) {
+                Button(L.t("upd.check")) { engine.checkNow() }
+                    .buttonStyle(SocleButtonStyle(.secondary, height: Socle.M.sizeControl)).fixedSize()
+                    .disabled(engine.isBusy)
+                Button(L.t("about.menu")) { About.show() }
+                    .buttonStyle(SocleButtonStyle(.tertiary, height: Socle.M.sizeControl)).fixedSize()
+                Spacer()
+                Text(status).socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).lineLimit(1)
+            }
+        }
+    }
+
+    private var status: String {
+        switch engine.state {
+        case .checking: return L.t("upd.checking")
+        case .upToDate: return L.t("upd.uptodate", engine.currentVersion)
+        case .available(let plan): return L.t("upd.available", plan.target.version)
+        case .downloading, .verifying, .installing: return L.t("upd.installing")
+        case .failed(let key): return engine.message(for: key)
+        case .idle: return L.t("upd.version", engine.currentVersion)
+        }
     }
 }

@@ -32,6 +32,15 @@ enum L {
     private static let tables: [String: [String: String]] = ["fr": fr, "en": en, "it": it, "es": es]
 
     private static let fr: [String: String] = [
+        "upd.title": "Mises à jour",
+        "upd.auto": "Installer automatiquement les mises à jour",
+        "upd.auto.note": "Une fois par jour, nEXUSWATCH cherche une nouvelle version sur GitHub, vérifie sa signature et sa notarisation Apple, l'installe puis se relance, jamais pendant une vérification. Décoché, il vous la propose.",
+        "upd.check": "Rechercher les mises à jour",
+        "upd.checking": "Recherche…",
+        "upd.uptodate": "À jour (%@)",
+        "upd.available": "Version %@ disponible",
+        "upd.installing": "Installation…",
+        "upd.version": "Version %@",
         "watch.web.insecure": "Ce site n'existe qu'en http, sans chiffrement : macOS bloque la connexion.",
         "watch.web.changed": "Page modifiée le %@",
         "tour.menu": "Visite guidée",
@@ -323,6 +332,15 @@ enum L {
     ]
 
     private static let en: [String: String] = [
+        "upd.title": "Updates",
+        "upd.auto": "Install updates automatically",
+        "upd.auto.note": "Once a day, nEXUSWATCH looks for a new version on GitHub, checks its signature and Apple notarization, installs it and relaunches, never during a check. Unchecked, it offers it to you.",
+        "upd.check": "Check for updates",
+        "upd.checking": "Checking…",
+        "upd.uptodate": "Up to date (%@)",
+        "upd.available": "Version %@ available",
+        "upd.installing": "Installing…",
+        "upd.version": "Version %@",
         "watch.web.insecure": "This site is only available over plain http: macOS blocks the connection.",
         "watch.web.changed": "Page changed %@",
         "tour.menu": "Guided tour",
@@ -614,6 +632,15 @@ enum L {
     ]
 
     private static let it: [String: String] = [
+        "upd.title": "Aggiornamenti",
+        "upd.auto": "Installa gli aggiornamenti automaticamente",
+        "upd.auto.note": "Una volta al giorno, nEXUSWATCH cerca una nuova versione su GitHub, ne verifica la firma e l'autenticazione Apple, la installa e si riavvia, mai durante un controllo. Se disattivato, te la propone.",
+        "upd.check": "Verifica aggiornamenti",
+        "upd.checking": "Ricerca…",
+        "upd.uptodate": "Aggiornato (%@)",
+        "upd.available": "Versione %@ disponibile",
+        "upd.installing": "Installazione…",
+        "upd.version": "Versione %@",
         "watch.web.insecure": "Questo sito esiste solo in http, senza cifratura: macOS blocca la connessione.",
         "watch.web.changed": "Pagina modificata il %@",
         "tour.menu": "Visita guidata",
@@ -905,6 +932,15 @@ enum L {
     ]
 
     private static let es: [String: String] = [
+        "upd.title": "Actualizaciones",
+        "upd.auto": "Instalar las actualizaciones automáticamente",
+        "upd.auto.note": "Una vez al día, nEXUSWATCH busca una nueva versión en GitHub, comprueba su firma y su notarización de Apple, la instala y se reinicia, nunca durante una comprobación. Desmarcado, te la propone.",
+        "upd.check": "Buscar actualizaciones",
+        "upd.checking": "Buscando…",
+        "upd.uptodate": "Al día (%@)",
+        "upd.available": "Versión %@ disponible",
+        "upd.installing": "Instalando…",
+        "upd.version": "Versión %@",
         "watch.web.insecure": "Este sitio solo existe en http, sin cifrado: macOS bloquea la conexión.",
         "watch.web.changed": "Página modificada el %@",
         "tour.menu": "Visita guiada",
