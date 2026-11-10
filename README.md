@@ -1,5 +1,7 @@
 # nEXUSWATCH
 
+[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/nexuswatch/)
+
 **For mod authors: keeps an eye on your Nexus Mods pages — stats, posts, bug reports and files — and turns the bug reports into a development plan.**  
 *Pour les auteurs de mods : surveille vos pages Nexus Mods — stats, posts, rapports de bugs et fichiers — et fait des rapports de bugs un plan de développement.*
 
