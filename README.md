@@ -1,28 +1,22 @@
+<p align="center"><img src="assets/icon.png" width="128" alt="nEXUSWATCH"></p>
+
 # nEXUSWATCH
 
-[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/nexuswatch/)
+[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/nexuswatch/) [![Latest release](https://img.shields.io/github/v/release/starbudweiser/nEXUSWATCH)](https://github.com/starbudweiser/nEXUSWATCH/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**For mod authors: keeps an eye on your Nexus Mods pages — stats, posts, bug reports and files — and turns the bug reports into a development plan.**  
-*Pour les auteurs de mods : surveille vos pages Nexus Mods — stats, posts, rapports de bugs et fichiers — et fait des rapports de bugs un plan de développement.*
+**For mod authors: keeps an eye on your Nexus Mods pages — stats, posts, bug reports and files — and turns the bug reports into a development plan.**
 
-🍏 **Native Mac app written in Swift, signed and notarized by Apple.** · *Appli Mac native écrite en Swift, signée et notarisée par Apple.*
+🇬🇧 English · 🇫🇷 [Français](#français)
 
-🇬🇧 [English](#-english) · 🇫🇷 [Français](#-français)
-
-💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
-
-### About
+## About
 
 nEXUSWATCH keeps an eye on your Nexus Mods pages and turns the bug reports into a development plan. Made by **Starbudweiser & Claude Code (Anthropic)**. MIT License, © 2026 Starbudweiser. Provided as is, without warranty. In the app: **nEXUSWATCH › About nEXUSWATCH**.
 
----
-## 🇬🇧 English
-
-### What it does
+🍏 **Native Mac app written in Swift, signed and notarized by Apple.**
 
 Publishing a mod means checking its page again and again for new comments, bug reports or a file stuck in the virus scan. nEXUSWATCH does it for you in the background and notifies you when something new comes in. No API key, no login: it only reads the mod's public pages (the optional Discord module needs its own bot). Version 1.1 audits the bug reports for you and can hand them to the AI agent of your choice.
 
-### Features
+## Features
 
 - **New in 1.4 — Discord** (optional, read-only): a Discord bot you create shows the new threads of your support forums, unread counts and the threads still unanswered. Nothing is ever written to Discord.
 - **New in 1.1 — several mods**: watch all your mod pages in one window, with unread counts in the sidebar.
@@ -65,10 +59,6 @@ Publishing a mod means checking its page again and again for new comments, bug r
 - The "already watched" message names the mod concerned.
 - A mod that is not published yet gets its own message instead of a connection error.
 
-### Updates
-
-The app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
-
 ### Screenshots
 
 ![Several mods in the sidebar; posts sorted by Jev into bug reports and feature requests](docs/screenshots/01_posts.png)
@@ -88,6 +78,14 @@ The app checks once a day whether a newer release exists on GitHub and offers to
 
 ![Settings: pick your AI agent method (export, OpenAI-compatible, Claude, MCP server) and Jev sorting](docs/screenshots/06_settings_ai.png)
 *Settings: pick your AI agent method (export, OpenAI-compatible, Claude, MCP server) and Jev sorting*
+
+### Privacy
+
+Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH). The optional AI features send the mod's public posts and bug reports only to the service you choose, with your own API key (stored in the macOS Keychain); Jev sorting sends the post texts to TypeSafe. With the MCP server or the export, nothing leaves your Mac unless your agent asks for it. The optional **Discord** module reads, with a read-only bot you create yourself, the threads and messages of your own server's forums; the bot token is stored in the macOS Keychain and the messages stay on your Mac (discord.json, same folder; threads inactive for 90 days are purged, and a button erases everything). Nothing is written to Discord, and nothing from Discord is sent anywhere. The **Watch** reads only public data: the GitHub API (latest release of each repository you add), the Nexus Mods GraphQL API and the web pages you add, without account or key; the list stays on your Mac.
+
+## Install
+
+**[Download the latest notarized release](https://github.com/starbudweiser/nEXUSWATCH/releases/latest)** · requires **macOS 14 Sonoma** or later on Apple Silicon.
 
 ### Requirements
 
@@ -109,6 +107,26 @@ A Mac with **Apple Silicon** (M1 or later), **macOS 14 Sonoma** or later. Native
 7. To follow other tools and mods, open **Watch** in the sidebar and paste a GitHub repository, a Nexus mod page or any web page; **Check** reads their latest version.
 8. Replay the **guided tour** at any time from the **Help** menu.
 
+### Updates
+
+The app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
+
+## Build
+
+Requires Python 3.12 with PyQt6 and PyInstaller. From the repository folder:
+
+```bash
+./build_app.sh
+```
+
+## Languages
+
+English, French, Spanish and Italian. The app follows your Mac's preferred language automatically (English if it is none of these four).
+
+## Support
+
+💬 Help and community: [Skyrim Mac Toolkit Discord](https://discord.gg/jRS4rvynx6) · bug reports: [GitHub Issues](https://github.com/starbudweiser/nEXUSWATCH/issues).
+
 ### FAQ
 
 **"The mod page is not responding".**  
@@ -117,25 +135,19 @@ Nexus sometimes shows a Cloudflare check: wait a moment and click **Refresh**.
 **How do I connect Claude Code?**  
 Choose **MCP server** in the settings and copy the command shown, for example `claude mcp add -s user nexuswatch -- "/Applications/nEXUSWATCH.app/Contents/MacOS/NexusWatch" --mcp`. Then ask Claude about your mods from any session (tools `list_mods`, `get_mod_report`, `get_bug_reports`, `get_fix_prompt`).
 
-### Privacy
+## License
 
-Only the mod's public pages and the public Nexus Mods GraphQL API are read, without account or API key. Read status, bug tracking and notes stay on your Mac (~/Library/Application Support/nEXUSWATCH). The optional AI features send the mod's public posts and bug reports only to the service you choose, with your own API key (stored in the macOS Keychain); Jev sorting sends the post texts to TypeSafe. With the MCP server or the export, nothing leaves your Mac unless your agent asks for it. The optional **Discord** module reads, with a read-only bot you create yourself, the threads and messages of your own server's forums; the bot token is stored in the macOS Keychain and the messages stay on your Mac (discord.json, same folder; threads inactive for 90 days are purged, and a button erases everything). Nothing is written to Discord, and nothing from Discord is sent anywhere. The **Watch** reads only public data: the GitHub API (latest release of each repository you add), the Nexus Mods GraphQL API and the web pages you add, without account or key; the list stays on your Mac.
-
-### Building from source
-
-Requires Python 3.12 with PyQt6 and PyInstaller. From the repository folder:
-
-```bash
-./build_app.sh
-```
-
-### License
-
-Released under the **MIT License**: free to use, modify and share. Part of the **Skyrim Mac Toolkit**, a set of modding tools built for Skyrim players on Mac.
+Released under the **MIT License**: free to use, modify and share. Part of the **Skyrim Mac Toolkit**, a set of modding tools built for Skyrim players on Mac. See [LICENSE](LICENSE).
 
 ---
 
-## 🇫🇷 Français
+## Français
+
+**Pour les auteurs de mods : surveille vos pages Nexus Mods — stats, posts, rapports de bugs et fichiers — et fait des rapports de bugs un plan de développement.**
+
+🍏 *Appli Mac native écrite en Swift, signée et notarisée par Apple.*
+
+💬 Aide et communauté : [Discord du Skyrim Mac Toolkit](https://discord.gg/jRS4rvynx6)
 
 ### À quoi ça sert
 
