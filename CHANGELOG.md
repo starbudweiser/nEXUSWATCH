@@ -2,6 +2,22 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
+## 2.0.1
+
+**English**
+
+- Hover and selection now use a soft neutral background instead of an outline or accent bar.
+- Real plurals in all four languages, localized numbers with aligned digits.
+- Long names are shortened, with the full text shown on hover.
+- The counters at the top are centred.
+
+**Français**
+
+- Le survol et la sélection prennent un fond neutre discret, sans contour ni barre d'accent.
+- Vrais pluriels dans les quatre langues, nombres localisés aux chiffres alignés.
+- Les noms longs sont raccourcis, avec le texte entier au survol.
+- Les compteurs du haut sont centrés.
+
 ## 2.0.0
 
 **English**
