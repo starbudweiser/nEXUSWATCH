@@ -328,8 +328,8 @@ final class Store: ObservableObject {
         let posts = keys.filter { $0.hasPrefix("p:") || $0.hasPrefix("r:") }.count
         let bugs = keys.filter { $0.hasPrefix("b:") }.count
         var lines: [String] = []
-        if posts > 0 { lines.append(L.t("notif.posts", posts)) }
-        if bugs > 0 { lines.append(L.t("notif.bugs", bugs)) }
+        if posts > 0 { lines.append(L.n("notif.posts", posts)) }
+        if bugs > 0 { lines.append(L.n("notif.bugs", bugs)) }
         let content = UNMutableNotificationContent()
         content.title = L.t("notif.title", mod.stats?.name ?? "Nexus Mods")
         content.body = lines.joined(separator: " · ")

@@ -117,7 +117,7 @@ struct RootView: View {
             Divider().overlay(Socle.C.border)
             StatsRow()
             if let q = quarantined, q > 0 {
-                Callout(kind: .danger, text: L.t("quarantine", q))
+                Callout(kind: .danger, text: L.n("quarantine", q))
                     .padding(.horizontal, Socle.M.space3).padding(.bottom, Socle.M.space3)
             }
             if let e = store.error {
@@ -172,14 +172,14 @@ struct ModSidebar: View {
                             store.select(m.id)
                         } content: {
                             HStack(spacing: Socle.M.space1_5) {
-                                Text(m.shortName).socle(Socle.T.labelStrong).lineLimit(2).help(m.displayName)
+                                Text(m.shortName).socle(Socle.T.labelStrong).lineLimit(2).truncationMode(.tail).help(m.displayName)
                                     .foregroundStyle(!store.showModule && m.id == store.state.id ? Socle.C.warning : Socle.C.textStrong)
                                 Spacer(minLength: 0)
                                 if store.refreshing == m.id { ProgressView().controlSize(.mini) }
                                 else if m.unreadPosts + m.unreadBugs > 0 { CountBadge(n: m.unreadPosts + m.unreadBugs) }
                             }
                             HStack(spacing: Socle.M.space1_5) {
-                                Text(m.config.domain).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                                Text(m.config.domain).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1).truncationMode(.middle).help(m.config.domain)
                                 if store.errors[m.id] != nil {
                                     Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                                 }
@@ -209,7 +209,7 @@ struct ModSidebar: View {
                                 else if store.discordUnread > 0 { CountBadge(n: store.discordUnread) }
                             }
                             HStack(spacing: Socle.M.space1_5) {
-                                Text(store.discord.guildName).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                                Text(store.discord.guildName).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1).truncationMode(.tail).help(store.discord.guildName)
                                 if store.discordError != nil {
                                     Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                                 }
@@ -226,7 +226,7 @@ struct ModSidebar: View {
                             if store.watchBusy { ProgressView().controlSize(.mini) }
                         }
                         HStack(spacing: Socle.M.space1_5) {
-                            Text(L.t("watch.count", store.watchItems.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).lineLimit(1)
+                            Text(L.n("watch.count", store.watchItems.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle).monospacedDigit().lineLimit(1)
                             if store.watchItems.contains(where: { $0.error != nil }) {
                                 Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning)
                             }
@@ -352,23 +352,30 @@ struct StatTile: View {
     let value: String?
     var delta: Int? = nil
     var note: String? = nil
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Socle.M.space1) {
+        // Encart de résumé : contenu centré (règle Socle « Encarts de résumé centrés »).
+        VStack(alignment: .center, spacing: Socle.M.space1) {
             Text(label.uppercased()).socle(Socle.T.eyebrow).foregroundStyle(Socle.C.textSubtle)
                 .lineLimit(1).truncationMode(.tail).help(label)
             Text(value ?? "—").socle(Socle.T.stat).foregroundStyle(Socle.C.textStrong).monospacedDigit()
-                .lineLimit(1).truncationMode(.tail)
+                .contentTransition(.numericText())
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: value)
+                .lineLimit(1).truncationMode(.tail).help(value ?? "")
             if let delta, delta != 0 {
                 Text(L.t("stat.delta", (delta > 0 ? "+" : "") + L.number(delta)))
-                    .socle(Socle.T.meta).foregroundStyle(delta > 0 ? Socle.C.success : Socle.C.danger).lineLimit(1)
+                    .socle(Socle.T.meta).foregroundStyle(delta > 0 ? Socle.C.success : Socle.C.danger).monospacedDigit()
+                    .lineLimit(1).truncationMode(.tail)
             } else if let note {
-                Text(note).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText).lineLimit(1)
+                Text(note).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText).monospacedDigit()
+                    .lineLimit(1).truncationMode(.tail).help(note)
             } else {
                 Text(" ").socle(Socle.T.meta)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(Socle.M.space3)
         .background(Socle.C.surface, in: RoundedRectangle(cornerRadius: Socle.M.radius))
         .overlay(RoundedRectangle(cornerRadius: Socle.M.radius).stroke(Socle.C.border, lineWidth: 1))
@@ -412,8 +419,11 @@ struct TabsBar: View {
 
 struct CountBadge: View {
     let n: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
-        Text("\(n)").socle(Socle.T.monoSm).foregroundStyle(Socle.C.onAccentFill)
+        Text(L.number(n)).socle(Socle.T.monoSm).foregroundStyle(Socle.C.onAccentFill).monospacedDigit()
+            .contentTransition(.numericText(value: Double(n)))
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: n)
             .padding(.horizontal, 6).padding(.vertical, 1)
             .background(Socle.C.accentFill, in: Capsule())
     }
@@ -509,6 +519,7 @@ struct ListRow<Content: View>: View {
     let action: () -> Void
     @ViewBuilder var content: Content
     @State private var hover = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button(action: action) {
@@ -518,8 +529,10 @@ struct ListRow<Content: View>: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, Socle.M.space3).padding(.vertical, Socle.M.space2_5)
+            // Survol et sélection : seulement un fond neutre (règle Socle « sans encadré »), jamais de barre ni de contour.
             .background(selected ? Socle.C.surfaceSelected : hover ? Socle.C.surfaceHover : .clear)
-            .overlay(alignment: .leading) { Rectangle().fill(selected ? Socle.C.accent : .clear).frame(width: 2) }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: selected)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: hover)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -588,15 +601,15 @@ struct PostsView: View {
                         selection = p.id
                     } content: {
                         HStack(spacing: Socle.M.space1_5) {
-                            Text(p.author).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(1)
+                            Text(p.author).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(1).truncationMode(.tail).help(p.author)
                             if p.sticky { Badge(text: L.t("badge.sticky"), kind: .warning) }
                             JevBadges(tag: store.tag(p))
                             Spacer()
                             Text(L.ago(p.lastActivity)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
                         }
-                        Text(p.text).socle(Socle.T.body).foregroundStyle(Socle.C.textMuted).lineLimit(2)
+                        Text(p.text).socle(Socle.T.body).foregroundStyle(Socle.C.textMuted).lineLimit(2).truncationMode(.tail).help(p.text)
                         if !p.replies.isEmpty {
-                            Text(L.t("posts.replies", p.replies.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText)
+                            Text(L.n("posts.replies", p.replies.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText).monospacedDigit()
                         }
                     }
                 }
@@ -689,7 +702,7 @@ struct BugsView: View {
                 }
                 .pickerStyle(.segmented).labelsHidden().padding(Socle.M.space3)
                 if store.untrackedBugPosts > 0 {
-                    Callout(kind: .warning, text: L.t("bugs.inposts", store.untrackedBugPosts))
+                    Callout(kind: .warning, text: L.n("bugs.inposts", store.untrackedBugPosts))
                         .padding([.horizontal, .bottom], Socle.M.space3)
                 }
                 Divider().overlay(Socle.C.borderSubtle)
@@ -697,7 +710,7 @@ struct BugsView: View {
                     ListRow(selected: selection == b.id, unread: store.isUnread(b)) {
                         selection = b.id
                     } content: {
-                        Text(b.title).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(2)
+                        Text(b.title).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(2).truncationMode(.tail).help(b.title)
                         HStack(spacing: Socle.M.space1_5) {
                             Badge(text: b.status, kind: Self.kind(b.status))
                             Badge(text: L.t("follow.\(store.follow(b).rawValue)"), kind: store.follow(b) == .released ? .success : .neutral)
@@ -739,7 +752,7 @@ struct BugDetail: View {
                 Text(bug.title).socle(Socle.T.heading).foregroundStyle(Socle.C.textStrong).textSelection(.enabled)
                 HStack(spacing: Socle.M.space2) {
                     Badge(text: bug.status, kind: BugsView.kind(bug.status))
-                    Text(L.t("bugs.meta", bug.version.isEmpty ? "—" : bug.version, bug.priority.isEmpty ? "—" : bug.priority, bug.replies))
+                    Text(L.t("bugs.meta", bug.version.isEmpty ? "—" : bug.version, bug.priority.isEmpty ? "—" : bug.priority, L.n("posts.replies", bug.replies)))
                         .socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
                 }
                 HStack(spacing: Socle.M.space2) {
@@ -1217,7 +1230,7 @@ struct SettingsView: View {
                     }
                 }
                 let u = (store.data.jevUsage ?? JevUsage()).thisMonth
-                Text(branded: L.t("jev.usage", u.requests, L.number(u.inputTokens + u.outputTokens), L.number(u.inputTokens), L.number(u.outputTokens)))
+                Text(branded: L.n("jev.usage", u.requests, L.number(u.inputTokens + u.outputTokens), L.number(u.inputTokens), L.number(u.outputTokens)))
                     .socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).monospacedDigit()
             }
         }

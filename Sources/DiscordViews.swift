@@ -82,20 +82,20 @@ struct DiscordView: View {
         ListRow(selected: selection == t.id, unread: d.isUnread(t)) {
             selection = t.id
         } content: {
-            Text(t.title).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(2)
+            Text(t.title).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(2).truncationMode(.tail).help(t.title)
             HStack(spacing: Socle.M.space1_5) {
                 if let f = d.forum(t) { Badge(text: f.name) }
                 ForEach(d.tagNames(t), id: \.self) { Badge(text: $0, kind: Self.tagKind($0)) }
             }
             HStack(spacing: Socle.M.space1_5) {
-                Text(L.t("discord.by", t.author)).socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).lineLimit(1)
+                Text(L.t("discord.by", t.author)).socle(Socle.T.meta).foregroundStyle(Socle.C.textMuted).lineLimit(1).truncationMode(.tail).help(L.t("discord.by", t.author))
                 Spacer(minLength: 0)
                 Text(L.ago(t.lastActivity)).socle(Socle.T.meta).foregroundStyle(Socle.C.textSubtle)
             }
             if d.awaitingSupport(t) {
                 Text(discordWaiting(since: t.created)).socle(Socle.T.meta).foregroundStyle(Socle.C.warning)
             } else if t.messages.count > 1 {
-                Text(L.t("discord.messages", t.messages.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText)
+                Text(L.n("discord.messages", t.messages.count)).socle(Socle.T.meta).foregroundStyle(Socle.C.accentText).monospacedDigit()
             }
         }
     }

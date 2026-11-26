@@ -301,12 +301,12 @@ struct WatchView: View {
                 ForEach(store.watchItems) { w in
                     ListRow(selected: w.id == selected, unread: false) { selected = w.id } content: {
                         HStack(spacing: Socle.M.space1_5) {
-                            Text(w.name).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(1)
+                            Text(w.name).socle(Socle.T.labelStrong).foregroundStyle(Socle.C.textStrong).lineLimit(1).truncationMode(.tail).help(w.name)
                             Spacer(minLength: 0)
                             Badge(text: w.kind.label)
                         }
                         HStack(spacing: Socle.M.space1_5) {
-                            Text(w.latest.map(WatchItem.label) ?? L.t("watch.unchecked")).socle(Socle.T.mono).foregroundStyle(Socle.C.accentText).lineLimit(1)
+                            Text(w.latest.map(WatchItem.label) ?? L.t("watch.unchecked")).socle(Socle.T.mono).foregroundStyle(Socle.C.accentText).lineLimit(1).truncationMode(.tail).help(w.latest.map(WatchItem.label) ?? L.t("watch.unchecked"))
                             Spacer(minLength: 0)
                             if w.error != nil { Image(systemName: "exclamationmark.triangle").foregroundStyle(Socle.C.warning) }
                         }

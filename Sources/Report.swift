@@ -82,10 +82,10 @@ enum LocalAudit {
         if items.isEmpty { s += "\(L.t("report.none"))\n" }
         for (i, it) in items.prefix(maxItems).enumerated() {
             s += "### \(i + 1). \(it.bug.title) — \(L.t("report.prio.\(it.priority.key)"))\n\n"
-            var facts = L.t("report.item.signals", it.reports, L.ago(it.bug.lastPost), versionNumber(it.bug.version))
+            var facts = L.n("report.item.signals", it.reports, L.ago(it.bug.lastPost), versionNumber(it.bug.version))
             if it.currentVersion { facts += " \(L.t("report.item.current"))" }
             s += "- \(facts)\n"
-            if it.linkedPosts > 0 { s += "- \(L.t("report.item.posts", it.linkedPosts))\n" }
+            if it.linkedPosts > 0 { s += "- \(L.n("report.item.posts", it.linkedPosts))\n" }
             s += "- \(L.t(it.answered ? "report.item.answered" : "report.item.unanswered"))\n"
             s += "- **\(L.t("report.action"))** \(L.t("report.action.\(it.action)"))\n"
             if let first = it.bug.messages.first?.text, !first.isEmpty {
@@ -124,7 +124,7 @@ enum LocalAudit {
         if items.isEmpty { s += "\(L.t("report.none"))\n\n" }
         for (i, it) in items.prefix(maxItems).enumerated() {
             s += "### \(i + 1). \(it.bug.title) — \(L.t("report.prio.\(it.priority.key)"))\n\n"
-            s += "- \(L.t("report.item.signals", it.reports, L.ago(it.bug.lastPost), versionNumber(it.bug.version)))\n"
+            s += "- \(L.n("report.item.signals", it.reports, L.ago(it.bug.lastPost), versionNumber(it.bug.version)))\n"
             s += "- \(L.t("report.action")) \(L.t("report.action.\(it.action)"))\n"
             for msg in it.bug.messages.prefix(4) where !msg.text.isEmpty {
                 s += "> \(L.t("agent.quote", msg.author, excerpt(msg.text, 600)))\n"

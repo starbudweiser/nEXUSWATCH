@@ -293,7 +293,7 @@ extension Store {
             let forums = try await c.forums(guild: g.id)
             mergeForums(forums)
             saveDiscord()
-            out.append(DiscordCheck(ok: !forums.isEmpty, text: L.t(forums.isEmpty ? "discord.test.noforum" : "discord.test.forums", forums.count)))
+            out.append(DiscordCheck(ok: !forums.isEmpty, text: forums.isEmpty ? L.t("discord.test.noforum") : L.n("discord.test.forums", forums.count)))
         } catch {
             out.append(DiscordCheck(ok: false, text: discordMessage(error)))
         }
@@ -309,8 +309,8 @@ extension Store {
             replies += t.messages.filter { keys.contains("m:\($0.id)") }.count
         }
         var lines: [String] = []
-        if !newThreads.isEmpty { lines.append(L.t("discord.notif.threads", newThreads.count)) }
-        if replies > 0 { lines.append(L.t("discord.notif.replies", replies)) }
+        if !newThreads.isEmpty { lines.append(L.n("discord.notif.threads", newThreads.count)) }
+        if replies > 0 { lines.append(L.n("discord.notif.replies", replies)) }
         guard !lines.isEmpty else { return }
         let content = UNMutableNotificationContent()
         content.title = L.t("discord.notif.title", discord.guildName)
